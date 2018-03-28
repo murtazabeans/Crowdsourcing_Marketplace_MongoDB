@@ -1,0 +1,175 @@
+<div className="container">
+        <div className = "calculator" >
+        <form onSubmit= {this.handleFormSubmit}>
+          <BoxComponent inputText = {this.state.inputText} result = {this.state.result}/>
+          <div className="numberFields">
+              <CalculatorButton buttonText= "1" handleButtonClick={this.handleButtonClick} type='input' />
+              <CalculatorButton buttonText= "2" handleButtonClick={this.handleButtonClick} type='input' />
+              <CalculatorButton buttonText= "3" handleButtonClick={this.handleButtonClick} type='input' />
+              <CalculatorButton buttonText= "4" handleButtonClick={this.handleButtonClick} type='input' />
+              <CalculatorButton buttonText= "5" handleButtonClick={this.handleButtonClick} type='input' />
+              <CalculatorButton buttonText= "6" handleButtonClick={this.handleButtonClick} type='input' />
+              <CalculatorButton buttonText= "7" handleButtonClick={this.handleButtonClick} type='input' />
+              <CalculatorButton buttonText= "8" handleButtonClick={this.handleButtonClick} type='input' />
+              <CalculatorButton buttonText= "9" handleButtonClick={this.handleButtonClick} type='input' />
+              <CalculatorButton buttonText= "0" handleButtonClick={this.handleButtonClick} type='input' />
+              <CalculatorButton buttonText= "." handleButtonClick={this.handleButtonClick} type='input' />
+              <CalculatorButton buttonText= "C" handleButtonClick={this.handleButtonClick} type='input' />
+          </div>
+          <div className="operations">
+            <CalculatorButton buttonText= "+" handleButtonClick={this.handleButtonClick} type='input' />
+            <CalculatorButton buttonText= "-" handleButtonClick={this.handleButtonClick} type='input' />
+            <CalculatorButton buttonText= "/" handleButtonClick={this.handleButtonClick} type='input' />
+            <CalculatorButton buttonText= "*" handleButtonClick={this.handleButtonClick} type='input' />
+          </div>
+          <div className="sum">
+            <CalculatorButton buttonText= "=" handleButtonClick={this.handleButtonClick} type='input' />
+          </div>
+      </form>
+      </div>
+
+      </div>
+
+      body > div {
+  width: 21.75%;
+  height: 560px;
+  margin-left: 35%;
+  margin-top: 5%;
+  border: 1px solid black;
+  padding: 8px;
+  background-color: darkgray;
+}
+
+.header {
+  margin-bottom: 5px;
+}
+
+.header input {
+  width: 395px;
+  height: 40px;
+  border: 2px solid black;
+  background-color: black;
+  text-align: right;
+  font-size: 45px;
+  color: white;
+}
+
+.calculator{
+  background-color: black;
+}
+.numberFields {
+  margin: 0;
+  width: 300px;
+  font-size:0;
+  overflow: auto;
+  float: left;
+}
+
+.numberFields input {
+  background-color: #696969;
+  border: 1px solid black;
+  font-size: 30px;
+  color:white;
+  width: 80px;
+  height: 80px;
+  margin-left: 15px;
+  margin-top: 15px;
+  border-radius: 40px;
+}
+
+.numberFields input[name="0"] {
+  width: 360px;
+}
+
+.operations {
+  width: 40px;
+  font-size: 0;
+  display: inline-block;
+}
+
+.operations input {
+  background-color: darkblue;
+  border: 1px solid black;
+  width: 80px;
+  height: 80px;
+  margin-top: 15px;
+  border-radius: 40px;
+  font-size: 30px;
+  color:white;
+}
+
+.sum {
+  margin-top: 25px;
+  height: 30px;
+}
+
+.sum input {
+  background-color: red;
+  border: 1px solid black;
+  width: 100%;
+  height: 50px;
+}
+
+body {
+  background: #83a4d4; /* fallback for old browsers */
+  background: -webkit-linear-gradient(to left, #83a4d4 , #b6fbff); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to left, #83a4d4 , #b6fbff); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */      
+  }
+  input{
+    border: none;
+  }
+  button {
+    height: 50px;
+    width: 50px;
+    margin: 10px 4px;
+    box-shadow: inset 1px 1px 50px  #0066FF;
+    border: none !important;
+  }
+  *:focus {
+      outline: 0 !important;
+  }
+  #allClear {
+    box-shadow: inset 1px 1px 50px  #990000;
+    border: none;
+  }
+  #clear {
+    box-shadow: inset 1px 1px 50px  #CC6600;
+    border: none;
+  }
+  #equals{
+    box-shadow: inset 1px 1px 50px #006633;
+    border: none;
+  }
+  /* Hidden button for formatting sake */
+  #blank {
+    visibility: hidden;
+  }
+  .calcBG {
+    background-color: #0000CC;
+    border-radius: 20px;
+    padding: 20px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    box-shadow: inset 1px 1px 50px #000;
+  }
+  .screen {
+    height: 40px;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px 2px;
+    font-size: 16px;
+    font-weight: bold;
+    
+  
+  background: #8e9eab; /* fallback for old browsers */
+  background: -webkit-linear-gradient(to right, #8e9eab , #eef2f3); /* Chrome 10-25, Safari 5.1-6 */
+  background: linear-gradient(to right, #8e9eab , #eef2f3); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+          
+    box-shadow: 0px 4px  #000099 inset;
+    
+  }
+  small {
+    color: #fff;
+    font-weight: bold;
+  }
+  
