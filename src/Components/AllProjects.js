@@ -14,13 +14,13 @@ class AllProjects extends Component {
   }
   
   componentWillMount(){
-    var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    .then((response) => {
-      if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
-      }
-    })
+    // var self = this;
+    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    // .then((response) => {
+    //   if(response.data.session.email ==  undefined){
+    //     window.location.href = "http://localhost:3000/signin";
+    //   }
+    // })
   }
 
   componentDidMount(){
@@ -47,9 +47,10 @@ class AllProjects extends Component {
     let projectList;
     if(this.state.data != null){
       projectList = this.state.data.map(project => {
+        debugger
         return(
           <ProjectDetail key = {project.id} id = {project.id} number_of_bids = {project.total_bids}  name={project.title} description={project.description} skills_required = {project.skills_required}
-          max_budget = {project.max_budget} min_budget = {project.min_budget} employer_id = {project.user_id} employer_name={project.name}   />
+          max_budget = {project.max_budget} min_budget = {project.min_budget} employer_id = {project.users[0].id} employer_name={project.users[0].name}   />
         )
       })
     }

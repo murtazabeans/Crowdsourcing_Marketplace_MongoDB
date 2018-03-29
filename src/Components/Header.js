@@ -11,15 +11,15 @@ class Header extends Component {
 
   componentWillMount(){
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    .then((response) => {
-      debugger
-      if(response.data.session.email !=  undefined){
-        self.setState({
-          sessionPresent: true
-        });
-      }
-    })
+    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    // .then((response) => {
+    //   debugger
+    //   if(response.data.session.email !=  undefined){
+    //     self.setState({
+    //       sessionPresent: true
+    //     });
+    //   }
+    // })
   }
 
   handleSignOut(e){
@@ -33,7 +33,7 @@ class Header extends Component {
   render(props) {
     let  session_link, post_project, user_profile, projects_page, bid_page, mybidprojects, my_projects, user_name = null;
     let isLoggedIn = localStorage.getItem("isLoggedIn");
-    if(this.state.sessionPresent) {
+    if(isLoggedIn) {
       mybidprojects = <a className="link-style nav-link btn-info" href="/my-bid-projects">My Bid Projects</a>
       my_projects = <a className="link-style nav-link btn-info" href="my-projects">My Projects</a>
       projects_page = <a className="link-style nav-link btn-info" href = "/projects"  >All Projects</a>

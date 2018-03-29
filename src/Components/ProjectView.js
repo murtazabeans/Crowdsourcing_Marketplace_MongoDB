@@ -15,17 +15,19 @@ class ProjectView extends Component {
   }
 
   componentWillMount(){
-    var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    .then((response) => {
-      if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
-      }
-      else{
-        let project_id = localStorage.getItem("project_id");
-        this.loadProjectDetailsFromServer(project_id);
-      }
-    })
+    let project_id = localStorage.getItem("project_id");
+    this.loadProjectDetailsFromServer(project_id)
+    // var self = this;
+    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    // .then((response) => {
+    //   if(response.data.session.email ==  undefined){
+    //     window.location.href = "http://localhost:3000/signin";
+    //   }
+    //   else{
+    //     let project_id = localStorage.getItem("project_id");
+    //     this.loadProjectDetailsFromServer(project_id);
+    //   }
+    // })
      
   }
 
@@ -71,9 +73,13 @@ class ProjectView extends Component {
     let form_values = {user_id: localStorage.user_id, project_id: localStorage.project_id, no_of_days: this.state.days, price: this.state.price}
     axios.post("http://localhost:3001/submit_bid", form_values)
     .then(function (response) {
-        if(response.data.rows[0].avgDays != undefined)
+        // if(response.data.rows[0].avgDays != undefined)
+        // {
+        //   self.state.data.days = response.data.rows[0].avgDays;
+        // }
+        if(true)
         {
-          self.state.data.days = response.data.rows[0].avgDays;
+          self.state.data.days = 0;
         }
         self.setState({
           data: self.state.data,

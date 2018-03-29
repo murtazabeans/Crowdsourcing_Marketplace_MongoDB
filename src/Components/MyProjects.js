@@ -10,13 +10,13 @@ class MyProjects extends Component {
   }
 
   componentWillMount(){
-    var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    .then((response) => {
-      if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
-      }
-    })
+    // var self = this;
+    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    // .then((response) => {
+    //   if(response.data.session.email ==  undefined){
+    //     window.location.href = "http://localhost:3000/signin";
+    //   }
+    // })
   }
   
   componentDidMount(){

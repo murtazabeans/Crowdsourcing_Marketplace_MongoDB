@@ -23,14 +23,14 @@ class Layout extends Component {
   
   componentWillMount(){
    
-    var self = this;
-    axios.get('http://localhost:3002/check_session', { withCredentials: true })
-    .then((response) => {
-      debugger
-      if(response.data.session.email !=  undefined){
-        this.props.getUserName(localStorage.user_id)
-      }
-    })
+    // var self = this;
+    // axios.get('http://localhost:3002/check_session', { withCredentials: true })
+    // .then((response) => {
+    //   debugger
+    //   if(response.data.session.email !=  undefined){
+    //     this.props.getUserName(localStorage.user_id)
+    //   }
+    // })
   }
 
   render() {

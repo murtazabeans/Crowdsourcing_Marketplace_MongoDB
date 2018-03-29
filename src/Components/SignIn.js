@@ -21,13 +21,13 @@ class SignIn extends Component {
   }
 
   componentWillMount(){
-    var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    .then((response) => {
-      if(response.data.session.email !=  undefined){
-        window.location.href = "http://localhost:3000/projects";
-      }
-    })
+    // var self = this;
+    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    // .then((response) => {
+    //   if(response.data.session.email !=  undefined){
+    //     window.location.href = "http://localhost:3000/projects";
+    //   }
+    // })
   }
 
   handlePasswordChange(e){
@@ -133,7 +133,7 @@ function mapDispatchToProps(dispatch){
       .then(response => {
         if(response.data.correctCredentials){
           localStorage.setItem("isLoggedIn", true);
-          localStorage.setItem("user_id", response.data.rows._id)
+          localStorage.setItem("user_id", response.data.rows.id)
           window.location.href = "http://localhost:3000/projects"
           dispatch({type: 'LoggedIn', payload: response.data.rows});
         }

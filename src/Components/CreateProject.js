@@ -50,7 +50,6 @@ class CreateProject extends Component {
     e.preventDefault();
     const formData = new FormData();
     formData.append('file', this.state.file);
-    formData.append('user_id', localStorage.user_id);
     const config = {
       headers: {
       'content-type': 'multipart/form-data'
