@@ -49,7 +49,7 @@ class AllProjects extends Component {
       projectList = this.state.data.map(project => {
         debugger
         return(
-          <ProjectDetail key = {project.id} id = {project.id} number_of_bids = {project.total_bids}  name={project.title} description={project.description} skills_required = {project.skills_required}
+          <ProjectDetail key = {project.id} id = {project.id} number_of_bids = {project.bids.length}  name={project.title} description={project.description} skills_required = {project.skills_required}
           max_budget = {project.max_budget} min_budget = {project.min_budget} employer_id = {project.users[0].id} employer_name={project.users[0].name}   />
         )
       })

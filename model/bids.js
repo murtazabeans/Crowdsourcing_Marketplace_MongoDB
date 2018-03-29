@@ -8,7 +8,8 @@ var BidsSchema = new Schema({
   number_of_days: String,
   created_at: Date,
   assigpricened_to: String,
-  status: String
+  status: String,
+  price: String
 });
 
 module.exports = mongoose.model("Bid", BidsSchema);

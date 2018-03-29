@@ -56,8 +56,6 @@ class ProjectView extends Component {
             btn_name: "Update Bid"
           })
         }
-        
-
     })
     document.getElementById("bid_form").style.display = "block";
   }
@@ -73,14 +71,15 @@ class ProjectView extends Component {
     let form_values = {user_id: localStorage.user_id, project_id: localStorage.project_id, no_of_days: this.state.days, price: this.state.price}
     axios.post("http://localhost:3001/submit_bid", form_values)
     .then(function (response) {
-        // if(response.data.rows[0].avgDays != undefined)
-        // {
-        //   self.state.data.days = response.data.rows[0].avgDays;
-        // }
-        if(true)
-        {
-          self.state.data.days = 0;
+      debugger
+      if(response.data.rows.length >= 1){
+        var price = 0;
+        for(var i = 0; i < response.data.rows.length; i++){
+          price += parseInt(response.data.rows[i].price);
         }
+        debugger
+        self.state.data.avgPrice = parseFloat((price/ response.data.rows.length)).toFixed(2);
+      }
         self.setState({
           data: self.state.data,
           days: '',
@@ -121,10 +120,16 @@ class ProjectView extends Component {
       if(response.data.rows != null){
         let user_detail = response.data.rows;
         console.log(response);
-        if(response.data.rows.days == null){
-          response.data.rows["days"] = "0";
+        if(response.data.rows.bids.length >=1){
+          var price = 0;
+          for(var i = 0; i < response.data.rows.bids.length; i++){
+            price += parseInt(response.data.rows.bids[i].price);
+          }
+          response.data.rows["avgPrice"] = parseFloat((price/ response.data.rows.bids.length)).toFixed(2);
         }
-         
+        else{
+          response.data.rows["avgPrice"] = "0";
+        }
         self.setState({
           data: response.data.rows    
         })
@@ -169,10 +174,6 @@ class ProjectView extends Component {
                       {/* <input className="input100" type="password" name="pass" placeholder="Enter password" onChange= {this.handlePasswordChange} /> */}
                       <span className="focus-input100"></span>
                     </div>
-                    
-
-                    {/* <a download href="http://www.pdf995.com/samples/pdf.pdf" target="_blank">Attachment</a> */}
-
 
                     <div className="wrap-input100 validate-input m-b-18">
                       <span className="label-input100">Skills Required</span>
@@ -189,9 +190,9 @@ class ProjectView extends Component {
                     </div>
 
                     <div className="wrap-input100 validate-input m-b-18">
-                      <span className="label-input100">Average Bid(Days)</span>
+                      <span className="label-input100">Average Bid($)</span>
                       {/* <textarea name="Text1" className="input100" cols="40" rows="3" value = {this.state.data.skills_required}></textarea> */}
-                      <input className="input100" type="text" disabled value = {this.state.data.days} />
+                      <input className="input100" type="text" disabled value = {this.state.data.avgPrice} />
                       <span className="focus-input100"></span>
                     </div>
 
