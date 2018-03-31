@@ -8,7 +8,7 @@ class ProjectView extends Component {
 
   constructor(){
     super();
-    this.state = { data: [], days: "", price: "", btn_name: "Submit Bid"  };
+    this.state = { data: [], days: "", price: "", btn_name: "Submit Bid", file: ''  };
     this.handleBidClick = this.handleBidClick.bind(this);
     this.handleBidInput = this.handleBidInput.bind(this);
     this.handlePriceInput = this.handlePriceInput.bind(this);
@@ -71,13 +71,11 @@ class ProjectView extends Component {
     let form_values = {user_id: localStorage.user_id, project_id: localStorage.project_id, no_of_days: this.state.days, price: this.state.price}
     axios.post("http://localhost:3001/submit_bid", form_values)
     .then(function (response) {
-      debugger
       if(response.data.rows.length >= 1){
         var price = 0;
         for(var i = 0; i < response.data.rows.length; i++){
           price += parseInt(response.data.rows[i].price);
         }
-        debugger
         self.state.data.avgPrice = parseFloat((price/ response.data.rows.length)).toFixed(2);
       }
         self.setState({
@@ -125,10 +123,10 @@ class ProjectView extends Component {
           for(var i = 0; i < response.data.rows.bids.length; i++){
             price += parseInt(response.data.rows.bids[i].price);
           }
-          response.data.rows["avgPrice"] = parseFloat((price/ response.data.rows.bids.length)).toFixed(2);
+          response.data.rows["avgPrice"] ="$" + parseFloat((price/ response.data.rows.bids.length)).toFixed(2);
         }
         else{
-          response.data.rows["avgPrice"] = "0";
+          response.data.rows["avgPrice"] = "$0";
         }
         self.setState({
           data: response.data.rows    
@@ -138,17 +136,121 @@ class ProjectView extends Component {
       return;
     })
   }
-  
+
+  handleProjectUploadChange(e){
+    e.preventDefault();
+    let reader = new FileReader();
+    let file = e.target.files[0]
+    reader.onloadend = () => {
+      this.setState({
+        file: file,
+        });
+      }
+      reader.readAsDataURL(file);
+      document.getElementById("project-file-upload").innerHTML = e.target.files[0].name;
+  }
+
+  handleFormSubmit(e){
+    debugger
+    e.preventDefault();
+    if(this.state.file == ""){
+      swal({
+        type: 'error',
+        title: 'Oops...',
+        text: 'You have not entered any folder!'
+      })
+      return;
+    }
+    else{
+      let splitted_file_name = this.state.file.name.split(".");
+      if(splitted_file_name[splitted_file_name.length - 1] == "zip"){
+        const formData = new FormData();
+        formData.append('file', this.state.file);
+        formData.append('project_id', localStorage.project_id);
+        const config = {
+          headers: {
+          'content-type': 'multipart/form-data'
+          }
+        }
+        var self = this;
+        if(this.state.file != ""){
+          axios.post("http://localhost:3001/upload-folder", formData, config)
+          .then(function (response) {
+            debugger
+            if(response.data.fileType != null){
+              
+              swal({
+                type: 'success',
+                title: 'Congratulations',
+                text: 'You have successfully uploaded the folder'
+              })
+              return;
+            }
+            return;
+          })
+        }
+      }
+      else{
+        swal({
+          type: 'error',
+          title: 'Oops...',
+          text: 'Please enter zip folder only'
+        })
+        return;
+      }
+    }
+    
+  }
 
   render() {
+    debugger
       const budget_range = this.state.data !== 'undefined' ? this.state.data.min_budget + " - " + 
       this.state.data.max_budget : null;
-      let attachment_url = null;
+      let attachment_url, button, download_folder_link = null;
+      let folder_name = this.state.data.folder_name == undefined ? "" : "Folder Uploaded";
       if(this.state.data.file_name != undefined && this.state.data.file_name != "undefined" && this.state.data.file_name != ""){
-        var attachment = require('../project-file/' + this.state.data.file_name)
-        
+        var attachment = require('../project-file/' + this.state.data.file_name);
         attachment_url = <a href = {attachment} className="custom-file-upload form-choose download-link" target="_blank">Show Attachment</a>
       }
+      if(this.state.data.folder_name != undefined && this.state.data.folder_name != "undefined" && this.state.data.folder_name){
+        let download_folder_path = require('../project-file/' + this.state.data.folder_name);
+        download_folder_link = <a href = {download_folder_path} className="custom-file-upload form-choose download-link download-folder"  download>Download Folder</a>
+      }
+      if(this.state.data.assigned_to == undefined){
+        button = <button className="link-style login100-form-btn" onClick={this.handleBidClick}>
+          Click to Bid
+        </button>
+      }
+      else{
+        if(this.state.data.assigned_to == localStorage.user_id){
+          button = <div>
+              <form onSubmit={this.handleFormSubmit.bind(this)}>
+                <label for="file-upload" className="link-style login100-form-btn project-upload-label">
+                      Upload Project Folder
+                </label>
+                <input id="file-upload" type="file" onChange = {this.handleProjectUploadChange.bind(this)}/>
+                <div id = "project-file-upload">{folder_name}</div>
+                <button className="custom-file-upload project-upload-button" id = "project-form-submit" type="submit">Upload Folder</button>
+              </form>
+            </div>
+        }
+        else{
+          if(this.state.data.user_id == localStorage.user_id)
+          {
+            button = <div><button className="link-style login100-form-btn payment-button" onClick={this.handleBidClick}>
+              Make Payment
+            </button>
+           {download_folder_link}
+           </div>
+          }
+          else{
+            button = <button disabled className="link-style login100-form-btn disable-button" onClick={this.handleBidClick}>
+              Project Assigned
+            </button>
+          }
+        }
+      }
+      
       return (
           <div>
             <div className="limiter">
@@ -201,9 +303,7 @@ class ProjectView extends Component {
                     <br/>
                     <br/>
                     <div className="container-login100-form-btn">
-                      <button className="link-style login100-form-btn" onClick={this.handleBidClick}>
-                        Click to Bid
-                      </button>
+                      {button}
                     </div>
                   <br/>
                   <br/>

@@ -16,16 +16,17 @@ class UserProfileView extends Component {
   }
 
   componentWillMount(){
-    var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    .then((response) => {
-      if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
-      }
-      else{
-        this.loadUserDetailsFromServer();
-      }
-    })
+    // var self = this;
+    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    // .then((response) => {
+    //   if(response.data.session.email ==  undefined){
+    //     window.location.href = "http://localhost:3000/signin";
+    //   }
+    //   else{
+    //     this.loadUserDetailsFromServer();
+    //   }
+    // })
+    this.loadUserDetailsFromServer();
   }
 
   loadUserDetailsFromServer(){
@@ -34,7 +35,9 @@ class UserProfileView extends Component {
       var self = this;
       axios.get("http://localhost:3001/get_user?id=" + id)
       .then(function (response) {
+        debugger
         if(response.data.rows != null){
+          debugger
           let user_detail = response.data.rows;
           console.log(response);
           self.setState({
@@ -54,13 +57,16 @@ class UserProfileView extends Component {
 
   render(props) {
     let isLoggedIn = localStorage.getItem("isLoggedIn");
+    let image_name = null;
     if(isLoggedIn != "true") {
       this.props.history.push("/signin");
       return <div></div>
     }
-    let image_name = null;
-    if(this.state.fileName != ""){
-      image_name = <img id = "profile_image_display" src= { require('../images/' + this.state.fileName) } alt="Smiley face" height="200px" width="200px" />
+    if(this.state.fileName == "" || this.state.fileName == undefined ){
+      image_name = <img id = "profile_image_display" src= { require('../images/default.png') } alt="Smiley face" height="100px" width="100px" />
+    }
+    else{
+      image_name = <img id = "profile_image_display" src= { require('../images/' + this.state.fileName) } alt="Smiley face" height="100px" width="100px" />
     }
         
     return (
@@ -74,8 +80,6 @@ class UserProfileView extends Component {
                   User Details
                 </span>
               </div>
-              
-              
               {image_name}
               <form className="login100-form validate-form">
                 <div className="wrap-input100 validate-input m-b-26 form-div" data-validate="Name is required">

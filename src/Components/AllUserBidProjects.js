@@ -44,21 +44,33 @@ class AllUserBidProjects extends Component {
      let projectList;
     if(this.state.data != null){
       projectList = this.state.data.map(project => {
+        debugger
+        let user_bid = null;
+        let price = 0;
+        for(var i = 0; i < project.bids.length; i++){
+          if(localStorage.user_id == project.bids[i].user_id){
+            user_bid = project.bids[i];
+          }
+          price += parseInt(project.bids[i].price);
+        }
+        let avgPrice = price == 0 ? 0 : parseFloat((price/ project.bids.length)).toFixed(2);
+        let assigned_to = project.assigned_to == undefined ? "" : project.assigned_to;
         return(
-          <UserBidProject key = {project.id} employer_id = {project.id}  project_name = {project.title} employer_name={project.name} avg_bid={project.avgDays}
-          user_bid={project.number_of_days} project_id = {project.project_id} assigned_to = {project.assigned_to}    />
+          <UserBidProject key = {project.id} employer_id = {project.employer.id}  project_name = {project.title} employer_name={project.employer.name} 
+          avg_bid={avgPrice}
+          user_bid={user_bid.number_of_days} project_id = {project.id} assigned_to = {assigned_to}    />
         )
       })
     }
     return (
       <div>
-        <table class="table details-table">
+        <table class="table details-table table-striped table-bordered">
           <thead class = "table-header">
             <tr>
               <th scope="col">Project Name</th>
               <th scope="col">Employer</th>
-              <th scope="col">Average Bid(in days)</th>
-              <th scope="col">Your Bid(in days)</th>
+              <th scope="col">Average Bid($)</th>
+              <th scope="col">Your Bid($)</th>
               <th scope="col">Status</th>
             </tr>
           </thead>

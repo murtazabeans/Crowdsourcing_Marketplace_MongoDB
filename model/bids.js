@@ -9,7 +9,7 @@ var BidsSchema = new Schema({
   created_at: Date,
   assigpricened_to: String,
   status: String,
-  price: String
+  price: Number
 });
 
 module.exports = mongoose.model("Bid", BidsSchema);

@@ -67,6 +67,7 @@ class UserProfile extends Component {
       var self = this;
       axios.get("http://localhost:3001/get_user?id=" + id)
       .then(function (response) {
+        debugger
         if(response.data.rows != null){
           let user_detail = response.data.rows;
           console.log(response);
@@ -89,12 +90,12 @@ class UserProfile extends Component {
     let form_values = {name: this.state.name.trim(), phone_number: this.state.phno.trim(), email: this.state.email.trim()
       , about_me: this.state.about_me, skills: this.state.skills, id: localStorage.user_id};
       
-    let nameErrorPresent = !this.validateNameFormat(this.state.name) ? true : false;
-    let emailErrorPresent = !this.validateEmailFormat(this.state.email) ? true : false;
-    let contactErrorPresent = !this.validateContactFormat(this.state.phno) ? true : false;
-    let descriptionErrorPresent = !this.validateDescriptionFormat(this.state.about_me) ? true : false;
-    let skillsErrorPresent = !this.validateSkillsFormat(this.state.skills) ? true : false;
-    if(nameErrorPresent || emailErrorPresent || contactErrorPresent || descriptionErrorPresent || skillsErrorPresent){ return; }
+    // let nameErrorPresent = !this.validateNameFormat(this.state.name) ? true : false;
+    // let emailErrorPresent = !this.validateEmailFormat(this.state.email) ? true : false;
+    // let contactErrorPresent = !this.validateContactFormat(this.state.phno) ? true : false;
+    // let descriptionErrorPresent = !this.validateDescriptionFormat(this.state.about_me) ? true : false;
+    // let skillsErrorPresent = !this.validateSkillsFormat(this.state.skills) ? true : false;
+    //if(nameErrorPresent || emailErrorPresent || contactErrorPresent || descriptionErrorPresent || skillsErrorPresent){ return; }
 
     var self = this;
     axios.post('http://localhost:3001/update_profile', form_values)

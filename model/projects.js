@@ -12,7 +12,8 @@ var ProjectsSchema = new Schema({
   created_at: Date,
   assigned_to: String,
   file_name: String,
-  date_of_completion: Date 
+  date_of_completion: Date,
+  folder_name: String
 });
 
 module.exports = mongoose.model("Project", ProjectsSchema);

@@ -44,20 +44,29 @@ class MyProjects extends Component {
      let projectList;
     if(this.state.data != null){
       projectList = this.state.data.map(project => {
+        debugger
+        let freelancer_id = project.freelancer.length == 0 ? "" : project.freelancer[0].id;
+        let freelancer_name = project.freelancer.length == 0 ? "" : project.freelancer[0].name;
+        let date_of_completion = project.date_of_completion == undefined ? "" : project.date_of_completion;
+        let price = 0;
+        for(var i = 0; i < project.bids.length; i++){
+          price += parseInt(project.bids[i].price);
+        }
+        let avgPrice = price == 0 ? "$0" : "$" + parseFloat((price/ project.bids.length)).toFixed(2);
         return(
-          <MyProject key = {project.id} freelancer_id= {project.freelancer_id} employer_id = {project.id}  project_name = {project.title} employer_name={project.owner} avg_bid={project.avgDays}
-          project_id = {project.id} employer_id = {project.employer_id} assigned_to = {project.freelancer_name} completion_date={project.date_of_completion}   />
+          <MyProject key = {project.id} freelancer_id= {freelancer_id} project_name = {project.title} avg_bid={avgPrice}
+          project_id = {project.id} assigned_to = {freelancer_name} completion_date={date_of_completion}   />
         )
       })
     }
     return (
       <div>
-        <table class="table details-table">
+        <table class="table details-table table-striped table-bordered">
           <thead class = "table-header">
             <tr>
               <th scope="col">Project Name</th>
-              <th scope="col">Employer</th>
-              <th scope="col">Average Bid(in days)</th>
+              {/* <th scope="col">Employer</th> */}
+              <th scope="col">Average Bid(in $)</th>
               <th scope="col">FreeLancer Name</th>
               <th scope="col">Estimate Project Completion Date</th>
               <th scope="col">Status</th>

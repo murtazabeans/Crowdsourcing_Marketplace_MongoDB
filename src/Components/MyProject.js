@@ -67,7 +67,7 @@ class MyProject extends Component {
         freelancer_name_link = <a data-freelancerId = {this.props.freelancer_id} onClick={this.handleFreeLancerNameClick} className="project-name" href="#" >{this.props.assigned_to}</a>
       }
       let date_of_completion;
-      if(this.props.completion_date == undefined){
+      if(this.props.completion_date == ""){
         date_of_completion = "Project not Assigned Yet!";
       }
       else{
@@ -79,9 +79,9 @@ class MyProject extends Component {
             <td>
             <a data-attr = {this.props.project_id} onClick={this.handleProjectNameClick} className="project-name" href="#">{this.props.project_name}</a>
             </td>
-            <td>
+            {/* <td>
             <a data-employerid = {this.props.employer_id} onClick={this.handleEmployerNameClick} className="project-name" href="#">{this.props.employer_name}</a>
-            </td>
+            </td> */}
             <td>{this.props.avg_bid}</td>
             <td>{freelancer_name_link}</td>
             <td>{date_of_completion}</td>

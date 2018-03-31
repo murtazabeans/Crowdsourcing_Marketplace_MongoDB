@@ -22,22 +22,22 @@ class Layout extends Component {
   }
   
   componentWillMount(){
-   
-    // var self = this;
-    // axios.get('http://localhost:3002/check_session', { withCredentials: true })
-    // .then((response) => {
-    //   debugger
-    //   if(response.data.session.email !=  undefined){
-    //     this.props.getUserName(localStorage.user_id)
-    //   }
-    // })
+    var self = this;
+    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    .then((response) => {
+      if(response.data.session.email !=  undefined){
+        this.props.getUserName(localStorage.user_id)
+      }
+    })
   }
 
   render() {
     return (
     <div>
       <Header/>
-        {this.props.children}
+        <div className= "table-header-divabc">
+          {this.props.children}
+        </div>
       <Footer/>
     </div>
     )

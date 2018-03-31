@@ -1,22 +1,61 @@
-/* @font-face {
-  font-family: Poppins-Regular;
-  src: url('../fonts/poppins/Poppins-Regular.ttf'); 
+body {
+	font-family: "Lato", sans-serif;
+	transition: background-color .5s;
 }
 
-@font-face {
-  font-family: Poppins-Medium;
-  src: url('../fonts/poppins/Poppins-Medium.ttf'); 
+.sidenav {
+	height: 100%;
+	width: 0;
+	position: fixed;
+	z-index: 1;
+	top: 0;
+	left: 0;
+	background-color: #111;
+	overflow-x: hidden;
+	transition: 0.5s;
+	padding-top: 60px;
 }
 
-@font-face {
-  font-family: Poppins-Bold;
-  src: url('../fonts/poppins/Poppins-Bold.ttf'); 
+.sidenav a {
+	padding: 8px 8px 8px 32px;
+	text-decoration: none;
+	font-size: 25px;
+	color: #818181;
+	display: block;
+	transition: 0.3s;
 }
 
-@font-face {
-  font-family: Poppins-SemiBold;
-  src: url('../fonts/poppins/Poppins-SemiBold.ttf'); 
-} */
+.sidenav a:hover {
+	color:red;
+}
+
+#header-main-div{
+	background-color: #f8f9fa!important;
+}
+
+.ab{
+	font-size:30px;
+	cursor:pointer
+}
+
+.sidenav .closebtn {
+	position: absolute;
+	top: 0;
+	right: 25px;
+	font-size: 36px;
+	margin-left: 50px;
+}
+
+#main {
+	transition: margin-left .5s;
+	padding: 16px;
+}
+
+@media screen and (max-height: 450px) {
+.sidenav {padding-top: 15px;}
+.sidenav a {font-size: 18px;}
+}
+
 .link-style{
 	color: white !important;
 	background-color: #29B2FE !important;
@@ -25,6 +64,47 @@
 }
 .details-table{
 	margin-top: 5%;
+}
+
+.disable-button{
+	background-color: darkgray !important;
+}
+
+div#project-file-upload {
+	margin-left: 23%;
+}
+
+.payment-button{
+	margin-left: 20%;
+}
+
+.download-folder{
+	width: 80%;
+}
+
+.hello{
+	background-color: white;
+	text-align: center;
+}
+
+.project-upload-button{
+	margin-left: 15% !important;
+	margin-top: 15%;
+}
+
+input.form-control {
+	max-width: 40%;
+	margin-top: 2%;
+	margin-left: 10%;
+}
+
+.pagination-list{
+	margin-left: 40%;
+}
+
+#main, #image-freelancer, #name
+{
+    display:inline;
 }
 
 .container {
@@ -37,17 +117,30 @@ input[type="file"] {
 
 #freelancer-img{
 
-	width: 16%;
-	margin-left: 5%;
+	width: 	18% !important;
+	margin-left: 27%;
+	margin-top: 1%
 }
 
 div#name {
-	font-size: 14px;
+	font-size: 26px;
 	color: black;
+	margin-top: 2%;
 	font-weight: bold;
 	text-align: center;
-	margin-top: 14px;
+
+	float: right;
 }
+
+.sidebar-options{
+	text-align: center;
+	font-size: 1em!important;
+	font-size: 20px;
+	margin-top: 30px;
+	display: block;
+}
+
+
 
 .image-form-group {
 	text-align: center;
@@ -69,6 +162,10 @@ div#name {
 
 .table-header{
 	background-color: black;
+	color: white;
+}
+
+.fa-sort{
 	color: white;
 }
 
@@ -140,7 +237,7 @@ td{
 }
 
 /* footer.footer.bg-light {
-	position:fixed;
+	 position:fixed;
    left:0px;
    bottom:0px;
    height:30px;

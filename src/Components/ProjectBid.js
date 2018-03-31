@@ -32,7 +32,9 @@ class ProjectBid extends Component {
     let hire_button, freelancer_name = null;
     let image_tag = <img id = "profile_image" src= { require('../images/' + this.props.image_name) } alt="Smiley face" height="80px" width="80px" />
     if(this.props.isProjectOwner){
-        hire_button = <a href = "#" id = {this.props.free_lancer_id} className="link-style nav-link btn-info action-link" onClick = {this.handleHireButton}>Hire</a>
+      debugger
+        hire_button = this.props.assigned_to != "" ? "You have assigned the project!" : 
+        <a href = "#" id = {this.props.free_lancer_id} className="link-style nav-link btn-info action-link" onClick = {this.handleHireButton}>Hire</a>
       }
     else if(this.props.assigned_to != ""){
       hire_button = this.props.assigned_to == this.props.free_lancer_id ? "Accepted" : "Rejected";

@@ -12,7 +12,7 @@ import Background from '../img/bg-01.jpg';
 import {withRouter} from 'react-router-dom'
 import { Redirect } from 'react-router';
 import allreducers from '../reducers';
-import UserSession from '../reducers/user-session'
+// import UserSession from '../reducers/user-session'
 import reducer from '../reducers/user-session';
 import { debug } from 'util';
 

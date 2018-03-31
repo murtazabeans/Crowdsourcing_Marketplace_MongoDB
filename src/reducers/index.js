@@ -1,5 +1,6 @@
 import {combineReducers} from 'redux';
 import UserSession from './user-session';
+import AllProjects from './all_projects';
 
 /*
  * We combine all reducers into a single object before updated data is dispatched (sent) to store
@@ -7,7 +8,8 @@ import UserSession from './user-session';
  * */
 
 const allReducers = combineReducers({
-    userLoggedIn: UserSession
+    userLoggedIn: UserSession,
+    all_projects: AllProjects
 });
 
 export default allReducers

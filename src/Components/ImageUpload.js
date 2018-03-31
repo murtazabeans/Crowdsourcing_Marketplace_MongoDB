@@ -91,11 +91,11 @@ class ImageUpload extends Component {
 
   render(props) {
     let image_tag = null;
-    if(this.state.fileType != ""){
-      image_tag = <img id = "profile_image" src= { require('../images/' + this.state.fileType) } alt="Smiley face" height="100px" width="100px" />
+    if(this.state.fileType == "" || this.state.fileType == undefined ){
+      image_tag = <img id = "profile_image" src= { require('../images/default.png') } alt="Smiley face" height="100px" width="100px" />
     }
     else{
-      image_tag = <img id = "profile_image" src= { require('../images/default.png') } alt="Smiley face" height="100px" width="100px" />
+      image_tag = <img id = "profile_image" src= { require('../images/' + this.state.fileType) } alt="Smiley face" height="100px" width="100px" />
     }
     return (
       <div className="image-form-group">

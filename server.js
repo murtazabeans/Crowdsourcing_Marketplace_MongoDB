@@ -59,37 +59,6 @@ app.use(function(req, res, next) {
  next();
 });
 
-app.get('/get_all_projects', function(request, response){
-   mongoose.connect("mongodb://root:root@ds121665.mlab.com:21665/freelancer", function(err, db) {
-    db.collection('projects').aggregate([
-      { $lookup:
-          {
-            from: 'users',
-            localField: 'user_id',
-            foreignField: 'id',
-            as: 'users'
-          }
-        },
-        {
-          $lookup:
-          {
-            from: 'bids',
-            localField: 'id',
-            foreignField: 'project_id',
-            as: 'bids'
-          }
-        },
-         
-      ]).toArray(function(err, rows) {
-      if (err) throw err;
-      console.log(JSON.stringify(rows));
-      db.close();
-      rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
-    });
-  });
-});
-
-
 app.post('/signup', function(request, response){
   var user = new User();
   console.log("Hello");
@@ -131,7 +100,8 @@ app.post('/signin', function(request, response){
 });
 
 app.get('/check_session', function(request, response){
-  //response.json({session: request.session});
+  console.log(request.session);
+  response.json({session: request.session});
 })
 
 app.get('/destroy_session', function(request, response){
@@ -140,34 +110,59 @@ app.get('/destroy_session', function(request, response){
 });
 
 app.get('/get_user', function(request, response){
-  query = User.find({_id: request.query.id})
-  query.exec(function(err, rows){
-    if(err) throw err;
-    console.log(rows.length);
-    rows.length >= 1 ? response.json({correctCredentials: true, rows: rows[0]}) :  response.json({correctCredentials: false});
+  mongoose.connect("mongodb://root:root@ds121665.mlab.com:21665/freelancer", function(err, db) {
+    query = User.find({id: request.query.id})
+    query.exec(function(err, rows){
+      if(err) throw err;
+      console.log(rows.length);
+      rows.length >= 1 ? response.json({correctCredentials: true, rows: rows[0]}) :  response.json({correctCredentials: false});
+    })
+    // db.close();`
   })
-  // pool.getConnection(function(err, connection){
-  //   var sql = "Select * from User where id = '" + request.query.id + "'";
-  //   connection.query(sql,function(err,rows){
-  //     if(err) throw err;
-  //     connection.release();
-  //     console.log(rows.length);
-  //     rows.length >= 1 ? response.json({correctCredentials: true, rows: rows[0]}) :  response.json({correctCredentials: false});
-  //   });
-  // });
+});
+
+app.get('/get_all_projects', function(request, response){
+  mongoose.connect("mongodb://root:root@ds121665.mlab.com:21665/freelancer", function(err, db) {
+   db.collection('projects').aggregate([
+     { $lookup:
+         {
+           from: 'users',
+           localField: 'user_id',
+           foreignField: 'id',
+           as: 'users'
+         }
+       },
+       {
+         $lookup:
+         {
+           from: 'bids',
+           localField: 'id',
+           foreignField: 'project_id',
+           as: 'bids'
+         }
+       },
+        
+     ]).toArray(function(err, rows) {
+     if (err) throw err;
+     console.log(JSON.stringify(rows));
+     //db.close();
+     rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
+   });
+ });
 });
 
 app.post('/update_profile', function(request, response){
-  pool.getConnection(function(err, connection){
-    var sql = "UPDATE User SET email = '" + request.body.email + "', name = '" + request.body.name + "', skills= '" + request.body.skills + 
-    "', about_me='" + request.body.about_me + "', phone_number='" + request.body.phone_number + "' where id='" + request.body.id + "'";
-    console.log(sql);
-    connection.query(sql,function(err,rows){
-      if(err) throw err;
-      connection.release();
-      rows.length >= 1 ? response.json({correctCredentials: true, rows: rows[0]}) :  response.json({correctCredentials: false});
+  console.log("hello")
+  mongoose.connect("mongodb://root:root@ds121665.mlab.com:21665/freelancer", function(err, db) {
+    var myquery = {id: request.body.id};
+    var new_values = { $set: {email: request.body.email, name: request.body.name, skills: request.body.skills, about_me: request.body.about_me
+      , phone_number: request.body.phone_number} };
+    db.collection("users").updateOne(myquery, new_values, function(err, res) {
+      console.log(res)
+      if (err) throw err;
+      response.json({message: "Profile Updated"})
     });
-  });
+  })
 });
 
 app.post('/create_project', function(req, res){
@@ -201,33 +196,41 @@ app.post('/create_project', function(req, res){
 });
 
 app.get('/get_project_bids', function(request, response){
-  pool.getConnection(function(err, connection){
-    var sql = "Select b.id as 'id', u.id as 'freelancer_id', u.name as 'free_lancer_name', u.profile_image_name as profile_image_name, p.user_id as 'project_owner', p.assigned_to as assigned_to, b.price as 'bid_price', " +
-    "b.number_of_days as 'days' from User u, Project p, Bid b where b.user_id = u.id and b.project_id = p.id and p.id = '" + request.query.pid + "'";
-    connection.query(sql, function(err,rows){
-      if(err) throw err;
-      console.log("Query Fired")
-      connection.release();
+  console.log(request.query.s);
+  mongoose.connect(url, function(err, db) {
+    db.collection('bids').aggregate([
+        {
+          $lookup:
+          {
+            from: 'users',
+            localField: 'user_id',
+            foreignField: 'id',
+            as: 'user'
+          }
+        },
+        {
+          $lookup:
+          {
+            from: 'projects',
+            localField: 'project_id',
+            foreignField: 'id',
+            as: 'project'
+          }
+        },
+        { $unwind:"$project" },
+        { "$match": { "project_id": request.query.pid } },
+        { $sort : { "price" : parseInt(request.query.s)} },
+      ]).toArray(function(err, rows) {
+      if (err) throw err;
+      //db.close();
+      console.log(rows);
       rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
     });
   });
 });
 
-
 app.get('/get_project_detail', function(request, response){
-  // pool.getConnection(function(err, connection){
-  //   var sql = "Select Project.*, AVG(Bid.number_of_days) as days from Project INNER JOIN Bid on (Project.id = Bid.project_id) where Project.id = '" 
-  //   + request.query.p_id  + "'";
-  //   console.log(sql);
-  //   console.log(request.query);
-  //   connection.query(sql,function(err,rows){
-  //     if(err) throw err;
-  //     connection.release();
-  //     rows.length >= 1 ? response.json({data_present: true, rows: rows[0]}) :  response.json({data_present: false});
-  //   });
-  // });
-  
-  mongoose.connect("mongodb://root:root@ds121665.mlab.com:21665/freelancer", function(err, db) {
+  mongoose.connect(url, function(err, db) {
     console.log(request.query.p_id)
     db.collection('projects').aggregate([
         {
@@ -247,12 +250,6 @@ app.get('/get_project_detail', function(request, response){
       rows.length >= 1 ? response.json({data_present: true, rows: rows[0]}) :  response.json({data_present: false});
     });
   });
-  // var query = Project.find({id: request.query.p_id});
-  // query.exec(function(err, rows){
-  //   if(err) throw err;
-  //   console.log(rows);
-  //   rows.length >= 1 ? response.json({data_present: true, rows: rows[0]}) :  response.json({data_present: false});
-  // })
 });
 
 app.post('/submit_bid', function(request, response){
@@ -271,7 +268,6 @@ app.post('/submit_bid', function(request, response){
         Bid.create({id: bid._id, project_id: request.body.project_id, user_id: request.body.user_id,  number_of_days: request.body.no_of_days, 
           created_at: new Date().toLocaleString(), price: request.body.price}, function(err, bids){
           if (err) throw err;
-          //response.json({rows: []})
         })
       }
       db.collection("bids").aggregate([
@@ -282,76 +278,117 @@ app.post('/submit_bid', function(request, response){
       //db.close();
       rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
     });
-    })
+    });
   });
 });
 
 app.post('/check_email', function(request, response){
-  var query = User.find({email: request.body.email});
-  query.exec(function(err, rows){
-    if(err) throw err;
-    rows.length >= 1 ? response.json({emailPresent: true}) :  response.json({emailPresent: false});    
-  })
-})
+  mongoose.connect(url, function(err, db) {
+    var query = User.find({email: request.body.email});
+    query.exec(function(err, rows){
+      if(err) throw err;
+      rows.length >= 1 ? response.json({emailPresent: true}) :  response.json({emailPresent: false});    
+    });
+  });
+});
 
 app.post('/hire_user', function(request, response){
-  console.log(request.body);
-  pool.getConnection(function(err, connection){
-    var query = "Update Bid SET status = 'Accepted' where user_id= '" + request.body.free_lancer_id + "' and project_id= '" + 
-    request.body.p_id + "'";
-    var query2 = "UPDATE Bid Set status = 'Rejected' where project_id='" + request.body.p_id + "' and user_id != '" + request.body.free_lancer_id + "'" ;
-    var query3 = "Select * from Bid where project_id='" + request.body.p_id + "' and status='Accepted'";
-    connection.query(query, function(err,rows){
-      if(err) throw err;
+  mongoose.connect(url, function(err, db) {
+    var myquery = { user_id: request.body.free_lancer_id, project_id: request.body.p_id };
+    var new_values = { $set: {status: 'Accepted'} };
+    db.collection("bids").updateOne(myquery, new_values, function(err, res) {  if (err) throw err; });
+
+    var myquery1 = { user_id: { $ne: request.body.free_lancer_id}, project_id: request.body.p_id };
+    var new_values1 = { $set: {status: 'Rejected'} };
+    db.collection("bids").update(myquery1, new_values1, function(err, res) {  if (err) throw err; });
+
+    var accepted_bid = Bid.find({project_id: request.body.p_id, status: 'Accepted'});
+    accepted_bid.exec(function(err, rows){
+      if (err) throw err;
+      var date = new Date();
+      var update_query = {id: request.body.p_id};
+      console.log(rows[0].number_of_days)
+      var updated_values = { $set: {assigned_to: request.body.free_lancer_id, 
+        date_of_completion: date.setDate(date.getDate() + parseInt(rows[0].number_of_days))} };
+      console.log(updated_values)
+      db.collection("projects").updateOne(update_query, updated_values, function(err, res) {  
+        if (err) throw err;
+        console.log("Inside")
+        response.json({message: "Free Lancer Hired"})
+      });
     });
-    connection.query(query2, function(err,rows){
-      if(err) throw err;
-      console.log(rows.length);
-    })
-    connection.query(query3, function(err,rows){
-      if(err) throw err;
-      console.log(rows);
-      if(rows.length >= 1){
-        var query4 = "UPDATE Project Set assigned_to='" + request.body.free_lancer_id + 
-          "', date_of_completion= DATE_ADD(NOW() , INTERVAL " + rows[0].number_of_days + " DAY) where id='" + request.body.p_id + "'"; 
-          connection.query(query4, function(err, rows){
-            if(err) throw err;
-            connection.release();
-            rows.length >= 1 ? response.json({dataUpdated: true, rows: rows[0]}) :  response.json({dataUpdated: false});
-        });
-      }     
-    })
   });
 });
 
 app.get('/get_all_user_bid_projects', function(request, response){
-  pool.getConnection(function(err, connection){
-    var sql = "select averageTable.avgDays, title, assigned_to, averageTable.project_id, X.number_of_days, c.name, c.id from" +
-    " (select avg(b.number_of_days) as avgDays, p.title, b.project_id, p.assigned_to,p.user_id from Bid b,Project p where b.project_id=p.id group by p.id) " +
-    "as averageTable, Bid X ,User c where X.project_id=averageTable.project_id and X.user_id='" + request.query.u_id + "' and averageTable.user_id =c.id";
-    console.log(sql)
-    connection.query(sql,function(err,rows){
-      if(err) throw err;
-      connection.release();      
+  mongoose.connect(url, function(err, db) {
+    db.collection('projects').aggregate([
+        {
+          $lookup:
+          {
+            from: 'bids',
+            localField: 'id',
+            foreignField: 'project_id',
+            as: 'bids'
+          }
+        },
+        {
+          $lookup:
+          {
+            from: 'users',
+            localField: 'user_id',
+            foreignField: 'id',
+            as: 'employer'
+          }
+        },
+        { $unwind:"$employer" },
+        { "$match": { "bids.user_id": request.query.u_id } },
+      ]).toArray(function(err, rows) {
+      if (err) throw err;
+      //db.close();
       console.log(rows);
       rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
     });
   });
+  // pool.getConnection(function(err, connection){
+  //   var sql = "select averageTable.avgDays, title, assigned_to, averageTable.project_id, X.number_of_days, c.name, c.id from" +
+  //   " (select avg(b.number_of_days) as avgDays, p.title, b.project_id, p.assigned_to,p.user_id from Bid b,Project p where b.project_id=p.id group by p.id) " +
+  //   "as averageTable, Bid X ,User c where X.project_id=averageTable.project_id and X.user_id='" + request.query.u_id + "' and averageTable.user_id =c.id";
+  //   console.log(sql)
+  //   connection.query(sql,function(err,rows){
+  //     if(err) throw err;
+  //     connection.release();      
+  //     console.log(rows);
+  //     rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
+  //   });
+  // });
 });
 
 app.get('/get_all_user_published_projects', function(request, response){
-  console.log(request.query)
-  pool.getConnection(function(err, connection){
-    var sql = "select b.id,b.title, b.assigned_to as freelancer_id, b.user_id as employer_id, b.date_of_completion as date_of_completion," + 
-    "avgTable.avgDays,C.name as owner ,b.assigned_to as freeLancer, CASE WHEN b.assigned_to is null or trim(b.assigned_to) = '' " +
-        "Then '' ELSE  (select D.name from User D where D.id=b.assigned_to) END as freelancer_name from " +
-    "(SELECT b.id,COALESCE(avg(a.number_of_days),0) as avgDays from Project b left OUTER JOIN Bid a on a.project_id=b.id group by b.id) as avgTable " +
-    ",Project b, User C where b.user_id = '" + request.query.u_id + "' and b.user_id=C.id and avgTable.id=b.id group by b.id," +
-    " b.title,avgTable.avgDays,owner,freeLancer"
-
-    connection.query(sql,function(err,rows){
-      if(err) throw err;
-      connection.release();      
+  mongoose.connect(url, function(err, db) {
+    db.collection('projects').aggregate([
+        {
+          $lookup:
+          {
+            from: 'users',
+            localField: 'assigned_to',
+            foreignField: 'id',
+            as: 'freelancer'
+          }
+        },
+        {
+          $lookup:
+          {
+            from: 'bids',
+            localField: 'id',
+            foreignField: 'project_id',
+            as: 'bids'
+          }
+        },
+        { "$match": { "user_id": request.query.u_id } },
+      ]).toArray(function(err, rows) {
+      if (err) throw err;
+      //db.close();
       console.log(rows);
       rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
     });
@@ -368,46 +405,98 @@ app.post('/get-bid-value-for-user', function(request, response){
 });
 
 app.get('/get-user-name', function(request, response){
-  pool.getConnection(function(err, connection){
-    var sql = "select * from User where id='" + request.query.id + "'";
-    connection.query(sql, function(err, rows){
-      if(err) throw err;
-      connection.release();
-      console.log(rows);
-      rows.length >= 1 ? response.json({data_present: true, rows: rows[0]}) :  response.json({data_present: false});
+  var query = User.find({id: request.query.id});
+  query.exec(function(err, rows){
+    if (err) throw err;
+    console.log(rows);
+    rows.length >= 1 ? response.json({data_present: true, rows: rows[0]}) :  response.json({data_present: false});
+  })
+});
+
+app.post('/upload-Image', function(req, response){
+  let form = new multiparty.Form();
+  form.parse(req, (err, fields, files) => {
+    let { path: tempPath, originalFilename } = files.file[0];
+    var fileType = originalFilename.split(".");
+    console.log(fileType)
+    let copyToPath = "./src/images/" + fields.user_id[0] + "." + fileType[fileType.length - 1];
+    console.log(copyToPath);
+    fs.readFile(tempPath, (err, data) => {
+      if (err) throw err;
+      fs.writeFile(copyToPath, data, (err) => {
+        if (err) throw err;
+        fs.unlink(tempPath, () => {
+        });
+        mongoose.connect(url, function(err, db) {
+          var myquery = {id: fields.user_id[0]};
+          var new_values = { $set: {profile_image_name: fields.user_id[0] + "." + fileType[fileType.length - 1]} };
+          db.collection("users").updateOne(myquery, new_values, function(err, res) {
+            if (err) throw err;
+            response.json({message: 'Image Upload Success', fileType: fileType[fileType.length - 1]});
+          });
+        });
+      });
     });
   });
 });
 
-app.post('/upload-Image', function(req, res){
+app.post('/upload-folder', function(req, response){
   let form = new multiparty.Form();
   form.parse(req, (err, fields, files) => {
-  let { path: tempPath, originalFilename } = files.file[0];
-  var fileType = originalFilename.split(".");
-  console.log(fileType)
-  let copyToPath = "./src/images/" + fields.user_id[0] + "." + fileType[fileType.length - 1];
-  //add path (copyToPath) to database pending 
-  console.log(copyToPath);
-  fs.readFile(tempPath, (err, data) => {
-    if (err) throw err;
-    fs.writeFile(copyToPath, data, (err) => {
+    let { path: tempPath, originalFilename } = files.file[0];
+    var fileType = originalFilename.split(".");
+    console.log(fileType)
+    let copyToPath =  "./src/project-file/" + fields.project_id[0] + "." + fileType[fileType.length - 1];
+    console.log(copyToPath);
+    fs.readFile(tempPath, (err, data) => {
       if (err) throw err;
-      // delete temp image
-      fs.unlink(tempPath, () => {
-      });
-      pool.getConnection(function(err, connection){
-        var sql = "Update User set profile_image_name='" + fields.user_id[0] + "." + fileType[fileType.length - 1] +   "' where id = '" +  fields.user_id[0] + "'";
-        console.log(sql);
-        connection.query(sql,function(err,rows){
-          if(err) throw err;
-          connection.release();
-          console.log(rows);
+      fs.writeFile(copyToPath, data, (err) => {
+        if (err) throw err;
+        fs.unlink(tempPath, () => {
         });
-        res.json({message: 'Image Upload Success', fileType: fileType[fileType.length - 1]});
+        mongoose.connect(url, function(err, db) {
+          var myquery = {id: fields.project_id[0]};
+          var new_values = { $set: {folder_name: fields.project_id[0] + "." + fileType[fileType.length - 1]} };
+          db.collection("projects").updateOne(myquery, new_values, function(err, res) {
+            if (err) throw err;
+            response.json({message: 'Folder Uploaded Successfully', fileType: fileType[fileType.length - 1]});
+          });
         });
       });
     });
   });
+});
+
+app.get('/search_projects', function(request, response){
+  var a = '/This/i'.replace("'", "");
+  console.log(a)
+  mongoose.connect("mongodb://root:root@ds121665.mlab.com:21665/freelancer", function(err, db) {
+   db.collection('projects').aggregate([
+     { $lookup:
+         {
+           from: 'users',
+           localField: 'user_id',
+           foreignField: 'id',
+           as: 'users'
+         }
+       },
+       {
+         $lookup:
+         {
+           from: 'bids',
+           localField: 'id',
+           foreignField: 'project_id',
+           as: 'bids'
+         }
+       },
+       {$match: { $or: [{ 'title': { $regex:  request.query.val, $options: 'i'} }, { 'skills_required': { $regex:  request.query.val, $options: 'i'} }] }},
+        
+     ]).toArray(function(err, rows) {
+     if (err) throw err;
+    //db.close();
+     rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
+   });
+ });
 });
 
 app.listen(port, function() {
