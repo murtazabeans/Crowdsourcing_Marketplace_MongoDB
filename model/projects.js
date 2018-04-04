@@ -13,7 +13,8 @@ var ProjectsSchema = new Schema({
   assigned_to: String,
   file_name: String,
   date_of_completion: Date,
-  folder_name: String
+  folder_name: String,
+  payment_completed: { type: Boolean, default: false }
 });
 
 module.exports = mongoose.model("Project", ProjectsSchema);

@@ -20,6 +20,7 @@ import { BrowserRouter as Router, Route } from 'react-router-dom'
 import AllUserBidProjects from './Components/AllUserBidProjects';
 import MyProjects from './Components/MyProjects';
 import UserProfileView from './Components/UserProfileView';
+import Payments from './Components/Payments'
 
 function loadState() {
   try {
@@ -51,6 +52,7 @@ ReactDOM.render(
             <Route path="/new-project" component={CreateProject} />
             <Route path="/projects" component={AllProjects} />
             <Route path="/project-detail" component={ProjectView}/>
+            <Route path="/payments" component={Payments}/>
             <Route path="/project-bids" component={AllProjectBids}/>
             <Route path = "/my-bid-projects" component = {AllUserBidProjects} />
             <Route path = "/my-projects" component = {MyProjects} />

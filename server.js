@@ -9,14 +9,15 @@ var http = require('http');
 var util = require('util');
 var fs = require('fs');
 var session = require('client-sessions');
+var nodemailer = require('nodemailer');
 
-// var connection = mysql.createConnection({
-//   host: "localhost",
-//   user: "root",
-//   password: "root",
-//   database: "free_lancer"
-// });
-
+var transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'murtazabeans@gmail.com',
+    pass: 'hello@123'
+  }
+});
 
 mongoose.connect("mongodb://root:root@ds121665.mlab.com:21665/freelancer");
 var url = "mongodb://root:root@ds121665.mlab.com:21665/freelancer"
@@ -33,7 +34,6 @@ var Bid = require('./model/bids');
 //   database : 'free_lancer',
 //   debug    :  false
 // });
-
 
 app.use(session({   
 	cookieName: 'session',    
@@ -110,7 +110,7 @@ app.get('/destroy_session', function(request, response){
 });
 
 app.get('/get_user', function(request, response){
-  mongoose.connect("mongodb://root:root@ds121665.mlab.com:21665/freelancer", function(err, db) {
+  mongoose.connect(url, function(err, db) {
     query = User.find({id: request.query.id})
     query.exec(function(err, rows){
       if(err) throw err;
@@ -270,14 +270,20 @@ app.post('/submit_bid', function(request, response){
           if (err) throw err;
         })
       }
-      db.collection("bids").aggregate([
-        { "$match": { "project_id": request.body.project_id } },
-      ]).toArray(function(err, rows) {
-      if (err) throw err;
-      console.log(rows);
-      //db.close();
-      rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
+      response.json({bidCreated: true});
     });
+  });
+});
+
+app.post('/get_bids', function(request, response){
+  mongoose.connect(url, function(err, db) {
+    db.collection("bids").aggregate([
+      { "$match": { "project_id": request.body.project_id } },
+    ]).toArray(function(err, rows) {
+    if (err) throw err;
+    console.log(rows);
+    //db.close();
+    rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
     });
   });
 });
@@ -302,15 +308,38 @@ app.post('/hire_user', function(request, response){
     var new_values1 = { $set: {status: 'Rejected'} };
     db.collection("bids").update(myquery1, new_values1, function(err, res) {  if (err) throw err; });
 
+    console.log("hello")
+    var query = User.find({id: request.body.free_lancer_id});
+    query.exec(function(err, rows){
+      console.log(rows);
+      if (err) throw err;
+      console.log(rows)
+      if(rows.length >=1){
+        var mailOptions = {
+          from: 'murtazabeans@gmail.com',
+          to: rows[0].email,
+          subject: 'Project Assigned',
+          text: 'You have been assigned a project. Please login to the website for more details.'
+        };
+  
+        transporter.sendMail(mailOptions, function(error, info){
+          if (error) {
+            console.log(error);
+          } else {
+            console.log('Email sent: ' + info.response);
+          }
+        });
+      }
+    });
+
     var accepted_bid = Bid.find({project_id: request.body.p_id, status: 'Accepted'});
     accepted_bid.exec(function(err, rows){
       if (err) throw err;
       var date = new Date();
       var update_query = {id: request.body.p_id};
-      console.log(rows[0].number_of_days)
+      console.log("hello")
       var updated_values = { $set: {assigned_to: request.body.free_lancer_id, 
         date_of_completion: date.setDate(date.getDate() + parseInt(rows[0].number_of_days))} };
-      console.log(updated_values)
       db.collection("projects").updateOne(update_query, updated_values, function(err, res) {  
         if (err) throw err;
         console.log("Inside")
@@ -350,18 +379,6 @@ app.get('/get_all_user_bid_projects', function(request, response){
       rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
     });
   });
-  // pool.getConnection(function(err, connection){
-  //   var sql = "select averageTable.avgDays, title, assigned_to, averageTable.project_id, X.number_of_days, c.name, c.id from" +
-  //   " (select avg(b.number_of_days) as avgDays, p.title, b.project_id, p.assigned_to,p.user_id from Bid b,Project p where b.project_id=p.id group by p.id) " +
-  //   "as averageTable, Bid X ,User c where X.project_id=averageTable.project_id and X.user_id='" + request.query.u_id + "' and averageTable.user_id =c.id";
-  //   console.log(sql)
-  //   connection.query(sql,function(err,rows){
-  //     if(err) throw err;
-  //     connection.release();      
-  //     console.log(rows);
-  //     rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
-  //   });
-  // });
 });
 
 app.get('/get_all_user_published_projects', function(request, response){
@@ -401,6 +418,110 @@ app.post('/get-bid-value-for-user', function(request, response){
     if (err) throw err;
     console.log(rows);
     rows.length >= 1 ? response.json({data_present: true, rows: rows[0]}) :  response.json({data_present: false});
+  })
+});
+
+app.post('/update_balance', function(request, response){
+  console.log("1")
+  mongoose.connect(url, function(err, db) {
+    var query = User.find({id: request.body.user_id});
+    console.log("2")
+    query.exec(function(err, rows){
+      console.log("3")
+      var myquery = {id: request.body.user_id};
+      console.log(myquery)
+      const old_balance = rows[0].balance == undefined ? 0 : rows[0].balance;
+      const new_balance = old_balance + parseFloat(request.body.amount);
+      let new_values = { $set: {balance: new_balance} };
+      db.collection("users").updateOne(myquery, new_values, function(err, res) {
+        if (err) throw err;
+        response.json({message: 'Balance Updated'});
+      });
+    })
+  })
+});
+
+app.post('/make_payment', function(request, response){
+  mongoose.connect(url, function(err, db) {
+    var project = Project.find({id: request.body.project_id});
+    project.exec(function(err, project){
+      if (err) throw err;
+      if(!project[0].payment_completed){
+        console.log("1");
+        var employer_query = User.find({id: request.body.employer_id});
+        employer_query.exec(function(err, employer){
+          var employee_values = employer;
+          if (err) throw err;
+          console.log("2");
+          var freelancer_query = User.find({id: request.body.freelancer_id});
+          console.log(employer)
+          freelancer_query.exec(function(err, freelancer){
+            if (err) throw err;
+            bid_query = Bid.find({ user_id: request.body.freelancer_id, project_id: request.body.project_id });
+            bid_query.exec(function(err, bid){
+              if (err) throw err;
+
+              const employer_account_balance = employee_values[0].balance == undefined ? 0 : employee_values[0].balance;
+              const amount_to_be_paid = bid[0].price;
+
+              if(amount_to_be_paid > employer_account_balance){
+                response.json({insufficientBalance: true, project_completed: false});
+              }
+              else{
+                var employer = { id: request.body.employer_id}
+                var employer_new_balance = employer_account_balance - amount_to_be_paid;
+                var employer_new_values = { $set: {balance: employer_new_balance} };
+                db.collection("users").updateOne(employer, employer_new_values, function(err, res) {
+                  if (err) throw err;
+                });
+                var freelancer_query = { id: request.body.freelancer_id };
+                console.log(freelancer);
+                var freelancer_old_balance = freelancer[0].balance == undefined ? 0 : freelancer[0].balance;
+                var freelancer_new_balance = freelancer_old_balance + amount_to_be_paid;
+                var freelancer_new_values = { $set: { balance: freelancer_new_balance } };
+                console.log(freelancer_old_balance + " and new is " + freelancer_new_balance)
+                db.collection("users").updateOne(freelancer_query, freelancer_new_values, function(err, res) {
+                  if (err) throw err;
+                });
+                var project = {id: request.body.project_id};
+                var new_project_values = { $set: {payment_completed: true }}
+                db.collection("projects").updateOne(project, new_project_values, function(err, res) {
+                  if (err) throw err;
+                });
+                response.json({project_completed: false, insufficientBalance: false});
+              }
+            })
+          })
+        })
+      }
+      else{
+      response.json({project_completed: true}) 
+      }
+    })
+  })
+});
+
+app.post('/withraw_amount', function(request, response){
+  mongoose.connect(url, function(err, db) {
+    var query = User.find({id: request.body.user_id});
+    query.exec(function(err, rows){
+      var myquery = {id: request.body.user_id};
+      console.log(myquery)
+      const old_balance = rows[0].balance == undefined ? 0 : rows[0].balance;
+      console.log(old_balance);
+      if(old_balance > parseFloat(request.body.amount)){
+        const new_balance = old_balance - parseFloat(request.body.amount);
+        console.log(new_balance)
+        let new_values = { $set: {balance: new_balance} };
+        db.collection("users").updateOne(myquery, new_values, function(err, res) {
+          if (err) throw err;
+          response.json({correctRequest: true, message: 'Balance Updated'});
+        });
+      }
+      else{
+        response.json({correctRequest: false, balance: old_balance});
+      }      
+    })
   })
 });
 

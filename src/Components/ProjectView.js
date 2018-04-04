@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import Background from '../img/bg-01.jpg';
 import SweetAlert from 'sweetalert-react';
-import swal from 'sweetalert2'
+import swal from 'sweetalert2';
+import { confirmAlert } from 'react-confirm-alert';
+import 'react-confirm-alert/src/react-confirm-alert.css'
 
 class ProjectView extends Component {
 
@@ -12,6 +14,7 @@ class ProjectView extends Component {
     this.handleBidClick = this.handleBidClick.bind(this);
     this.handleBidInput = this.handleBidInput.bind(this);
     this.handlePriceInput = this.handlePriceInput.bind(this);
+    //this.handlePaymentSubmission = this.handlePaymentSubmission(this);
   }
 
   componentWillMount(){
@@ -71,27 +74,31 @@ class ProjectView extends Component {
     let form_values = {user_id: localStorage.user_id, project_id: localStorage.project_id, no_of_days: this.state.days, price: this.state.price}
     axios.post("http://localhost:3001/submit_bid", form_values)
     .then(function (response) {
-      if(response.data.rows.length >= 1){
-        var price = 0;
-        for(var i = 0; i < response.data.rows.length; i++){
-          price += parseInt(response.data.rows[i].price);
-        }
-        self.state.data.avgPrice = parseFloat((price/ response.data.rows.length)).toFixed(2);
+      if(response.data.bidCreated){
+        debugger
+        axios.post("http://localhost:3001/get_bids", {project_id: localStorage.project_id})
+        .then(function (response) {
+          debugger
+          var price = 0;
+          for(var i = 0; i < response.data.rows.length; i++){
+            price += parseInt(response.data.rows[i].price);
+          }
+          self.state.data.avgPrice = "$" + parseFloat((price/ response.data.rows.length)).toFixed(2);
+          self.setState({
+            data: self.state.data,
+            days: '',
+            price: '',
+            btn_name: 'Submit Bid' 
+          })
+          swal({
+            type: 'success',
+            title: 'Thank You',
+            text: 'Your Bid is Submitted Successfully!'
+          })
+          self.props.history.push("/project-detail");
+          document.getElementById("bid_form").style.display = "none";
+        });
       }
-        self.setState({
-          data: self.state.data,
-          days: '',
-          price: '',
-          btn_name: 'Submit Bid' 
-        })
-        swal({
-          type: 'success',
-          title: 'Thank You',
-          text: 'Your Bid is Submitted Successfully!'
-        })
-        self.props.history.push("/project-detail");
-        document.getElementById("bid_form").style.display = "none";
-
     })
   }
 
@@ -151,7 +158,6 @@ class ProjectView extends Component {
   }
 
   handleFormSubmit(e){
-    debugger
     e.preventDefault();
     if(this.state.file == ""){
       swal({
@@ -176,7 +182,6 @@ class ProjectView extends Component {
         if(this.state.file != ""){
           axios.post("http://localhost:3001/upload-folder", formData, config)
           .then(function (response) {
-            debugger
             if(response.data.fileType != null){
               
               swal({
@@ -199,11 +204,65 @@ class ProjectView extends Component {
         return;
       }
     }
-    
   }
 
+  handlePaymentConfirm(e){
+
+    e.preventDefault();
+    const data = this.state.data;
+    var self = this;
+    confirmAlert({
+      title: 'Confirm to submit',
+      message: 'Are you sure you want to make payment for this project?',
+      buttons: [
+        {
+          label: 'Yes',
+          onClick: () => {
+            var a = ""
+            self.setState({})
+            let form_data = {employer_id: localStorage.user_id, freelancer_id: self.state.data.assigned_to, project_id: localStorage.project_id}
+            axios.post("http://localhost:3001/make_payment", form_data)
+            .then(function (response) {
+              if(response.data.project_completed){   
+                swal({
+                  type: 'error',
+                  title: 'Failed',
+                  text: 'You have already paid for this project'
+                })
+                return;
+              }
+              else{
+                if(response.data.insufficientBalance){
+                  swal({
+                    type: 'error',
+                    title: 'Failed',
+                    text: 'You do not have sufficient balance! Please update your account'
+                  })
+                  return;
+                }
+                else{
+                  swal({
+                    type: 'success',
+                    title: 'Paid',
+                    text: 'You have Successfully Paid for this Project to the Freelancer'
+                  })
+                }
+              }
+              return;
+            })
+          }
+        },
+        {
+          label: 'No',
+          onClick: () => ""
+        }
+      ]
+    })
+  }
+
+  
+
   render() {
-    debugger
       const budget_range = this.state.data !== 'undefined' ? this.state.data.min_budget + " - " + 
       this.state.data.max_budget : null;
       let attachment_url, button, download_folder_link = null;
@@ -237,7 +296,7 @@ class ProjectView extends Component {
         else{
           if(this.state.data.user_id == localStorage.user_id)
           {
-            button = <div><button className="link-style login100-form-btn payment-button" onClick={this.handleBidClick}>
+            button = <div><button className="link-style login100-form-btn payment-button" onClick={ this.handlePaymentConfirm.bind(this) }>
               Make Payment
             </button>
            {download_folder_link}
@@ -250,7 +309,7 @@ class ProjectView extends Component {
           }
         }
       }
-      
+
       return (
           <div>
             <div className="limiter">

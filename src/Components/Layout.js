@@ -35,7 +35,7 @@ class Layout extends Component {
     return (
     <div>
       <Header/>
-        <div className= "table-header-divabc">
+        <div className= "table-header-div">
           {this.props.children}
         </div>
       <Footer/>

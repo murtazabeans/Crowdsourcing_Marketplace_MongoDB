@@ -32,7 +32,7 @@ class Header extends Component {
     document.getElementById("mySidenav").style.width = "0";
     document.getElementById("main").style.marginLeft= "0";
     document.body.style.backgroundColor = "white";
-}
+  }
 
   handleSignOut(e){
     localStorage.clear();
@@ -43,7 +43,7 @@ class Header extends Component {
   }
 
   render(props) {
-    let  session_link, post_project, user_profile, projects_page, bid_page, mybidprojects, my_projects, user_name = null;
+    let  session_link, payment_url, post_project, user_profile, projects_page, bid_page, mybidprojects, my_projects, user_name = null;
     let isLoggedIn = localStorage.getItem("isLoggedIn");
     if(isLoggedIn == "true") {
       mybidprojects = <a className="sidebar-options" href="/my-bid-projects">My Bid Projects</a>
@@ -51,12 +51,13 @@ class Header extends Component {
       projects_page = <a className="sidebar-options" href = "/projects"  >All Projects</a>
       post_project = <a className="sidebar-options" href="/new-project">Post Project </a>
       user_profile = <a className="sidebar-options" href="/edit_profile">Edit Profile </a>
+      payment_url = <a className="sidebar-options" href="/payments">Manage Payments</a>
       session_link = <a className="sidebar-options" onClick = {this.handleSignOut} href="#">Sign Out</a>
     }
     else{
       session_link = <a className="btn btn-primary" href="/signin">Sign In</a>      
     }
-    
+
     if(this.props.user.login_data != null){
       user_name = <div id = "name"><i className="fa fa-user" aria-hidden="true"></i> Welcome {this.props.user.login_data.name}  </div>
     }
@@ -66,17 +67,16 @@ class Header extends Component {
         <div className="container">
           <div id="mySidenav" className="sidenav">
             <a href="javascript:void(0)" className="closebtn" onClick={this.closeNav}>&times;</a>
-
             { mybidprojects }
             { my_projects }
             { projects_page }
             { post_project }
             { user_profile }
+            {payment_url}
             { session_link }
-            
           </div>
           <div id="main">
-            <span className = "ab" onClick={this.openNav.bind(this)}>&#9776; MENU</span>
+            <span className = "open-sidebar" onClick={this.openNav.bind(this)}>&#9776; MENU</span>
           </div>
           <a href="https://www.freelancer.com/" id = "image-freelancer" target="_blank" className="navbar-brand web-link" title="Home"><img id="freelancer-img" src= {require('../img/freelancer.svg')} /></a>
           { user_name }

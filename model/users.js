@@ -10,7 +10,8 @@ var UsersSchema = new Schema({
   about_me: String,
   skills: String,
   created_at: Date,
-  profile_image_name: String
+  profile_image_name: String,
+  balance: { type: Number, default: 0 }
 });
 
 module.exports = mongoose.model("User", UsersSchema);
