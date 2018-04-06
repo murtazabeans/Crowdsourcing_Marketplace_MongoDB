@@ -61,18 +61,22 @@ class SignUp extends Component {
     let nameErrorPresent = !this.validateNameFormat(this.state.name) ? true : false;
     let passwordErrorPresent = !this.validatePasswordFormat(this.state.password) ? true : false;
     let emailErrorPresent = !this.validateEmailFormat(this.state.email) ? true : false;
-
+    if(nameErrorPresent || passwordErrorPresent || emailErrorPresent){ return;}
+    
     axios.post('http://localhost:3001/check_email', form_values)
     .then((response) => {
+      debugger
       var self = this;
       if(response.data.emailPresent){
         document.getElementById("email-error").innerHTML = "Email already present";
         self.setState({emailAlreadyPresent: true});
+        return;
+      }
+      else{
+        self.props.registerUser(form_values);
+        self.setState({});
       }
     })
-    debugger
-    // this.state.emailAlreadyPresent || nameErrorPresent || passwordErrorPresent || emailErrorPresent ? "" : this.props.registerUser(form_values);
-    this.props.registerUser(form_values);
   }
 
   validateNameFormat(name){
@@ -173,6 +177,7 @@ function mapDispatchToProps(dispatch){
       debugger
       axios.post('http://localhost:3001/signup', details, { withCredentials: true })
       .then((response) => {
+        debugger
         window.location.href = "http://localhost:3000/projects";
         dispatch({type: 'LoggedIn', payload: response.data.rows});
         localStorage.setItem("isLoggedIn", true);

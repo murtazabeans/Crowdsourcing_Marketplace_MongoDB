@@ -88,6 +88,21 @@ body {
 	margin-left: 12%;
 }
 
+svg {
+	width: 100%;
+}
+
+#table_header{
+	text-align: center;
+	margin-top: 3%
+}
+
+div#graph_div {
+	height: 100%;
+	margin-left: 40%;
+	text-align: center;
+}
+
 .sidenav {
 	height: 100%;
 	width: 0;
@@ -196,6 +211,10 @@ input.form-control {
 	margin-left: 40%;
 }
 
+div#header-main-div {
+	background-color: #f8f9fa!important;
+}
+
 #main, #image-freelancer, #name
 {
     display:inline;
@@ -210,9 +229,8 @@ input[type="file"] {
 }
 
 #freelancer-img{
-
 	width: 	18% !important;
-	margin-left: 27%;
+	margin-left: 30%;
 	margin-top: 1%
 }
 

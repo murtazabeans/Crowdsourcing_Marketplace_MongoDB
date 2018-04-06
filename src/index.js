@@ -21,6 +21,7 @@ import AllUserBidProjects from './Components/AllUserBidProjects';
 import MyProjects from './Components/MyProjects';
 import UserProfileView from './Components/UserProfileView';
 import Payments from './Components/Payments'
+import AllTransactions from './Components/AllTransactions'
 
 function loadState() {
   try {
@@ -57,6 +58,7 @@ ReactDOM.render(
             <Route path = "/my-bid-projects" component = {AllUserBidProjects} />
             <Route path = "/my-projects" component = {MyProjects} />
             <Route path = "/profile" component = {UserProfileView} />
+            <Route path = "/transactions" component = {AllTransactions} />
           </div>
         </Router>
     </Layout>

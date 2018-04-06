@@ -75,7 +75,7 @@ class ProjectView extends Component {
     axios.post("http://localhost:3001/submit_bid", form_values)
     .then(function (response) {
       if(response.data.bidCreated){
-        debugger
+
         axios.post("http://localhost:3001/get_bids", {project_id: localStorage.project_id})
         .then(function (response) {
           debugger
@@ -122,6 +122,7 @@ class ProjectView extends Component {
     var self = this;
     axios.get("http://localhost:3001/get_project_detail?p_id=" + project_id)
     .then(function (response) {
+      debugger
       if(response.data.rows != null){
         let user_detail = response.data.rows;
         console.log(response);
@@ -259,10 +260,9 @@ class ProjectView extends Component {
       ]
     })
   }
-
   
-
   render() {
+    debugger
       const budget_range = this.state.data !== 'undefined' ? this.state.data.min_budget + " - " + 
       this.state.data.max_budget : null;
       let attachment_url, button, download_folder_link = null;

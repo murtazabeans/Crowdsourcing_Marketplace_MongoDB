@@ -37,7 +37,8 @@ class AllProjects extends Component {
       axios.get('http://localhost:3001/search_projects?val=' + e.target.value, { withCredentials: true })
       .then((response) => {
         debugger
-        self.setState({data: response.data.rows})
+        response.data.data_present ? self.setState({data: response.data.rows}) : self.setState({data: []})
+        
       })
     }
     else{
@@ -69,6 +70,7 @@ class AllProjects extends Component {
 
   render() {
     let projectList, pagination_list=null;
+    debugger
     if(this.state.data != []){
       const indexOfLastTodo = this.state.currentPage * this.state.perPageRows;
       const indexOfFirstTodo = indexOfLastTodo - this.state.perPageRows;

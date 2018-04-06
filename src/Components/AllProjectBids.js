@@ -9,7 +9,7 @@ class AllProjectBids extends Component {
     this.state = { data: [], sort_state: 1 };
     this.handlePriceSort = this.handlePriceSort.bind(this);
   }
-  
+
   componentDidMount(){
     this.loadBidsFromServer();
   }
@@ -51,7 +51,6 @@ class AllProjectBids extends Component {
     let bidList;
     if(this.state.data != null){
       bidList = this.state.data.map(bid => {
-        debugger
         let current_user_id = localStorage.user_id;
         let isProjectOwner = current_user_id == bid.project.user_id ? true : false;
         let profile_image_name = bid.user[0].profile_image_name == undefined ? "default.png" : bid.user[0].profile_image_name
