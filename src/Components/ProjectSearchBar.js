@@ -21,7 +21,7 @@ class ProjectSearchBar extends Component {
 
   render() {
     return (
-      <div class= "container">
+      <div class= "container" id = "search_bar">
         <div class="row">
           <div class="col-lg-12">
             <div class="input-group">

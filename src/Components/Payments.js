@@ -23,7 +23,6 @@ class Payments extends Component {
     var self = this;
     axios.get('http://localhost:3001/past_payments?u_id=' + user_id, { withCredentials: true })
     .then((response) => {
-      debugger
       var a = ""
       if(response.data.data_present){
         self.setState({data: response.data.rows, values_present: true})

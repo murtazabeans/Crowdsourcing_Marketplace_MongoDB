@@ -20,18 +20,17 @@ class ProjectView extends Component {
   componentWillMount(){
     let project_id = localStorage.getItem("project_id");
     this.loadProjectDetailsFromServer(project_id)
-    // var self = this;
-    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    // .then((response) => {
-    //   if(response.data.session.email ==  undefined){
-    //     window.location.href = "http://localhost:3000/signin";
-    //   }
-    //   else{
-    //     let project_id = localStorage.getItem("project_id");
-    //     this.loadProjectDetailsFromServer(project_id);
-    //   }
-    // })
-     
+    var self = this;
+    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    .then((response) => {
+      if(response.data.session.email ==  undefined){
+        window.location.href = "http://localhost:3000/signin";
+      }
+      else{
+        let project_id = localStorage.getItem("project_id");
+        this.loadProjectDetailsFromServer(project_id);
+      }
+    })
   }
 
   handlePriceInput(e){
@@ -78,7 +77,6 @@ class ProjectView extends Component {
 
         axios.post("http://localhost:3001/get_bids", {project_id: localStorage.project_id})
         .then(function (response) {
-          debugger
           var price = 0;
           for(var i = 0; i < response.data.rows.length; i++){
             price += parseInt(response.data.rows[i].price);
@@ -122,7 +120,6 @@ class ProjectView extends Component {
     var self = this;
     axios.get("http://localhost:3001/get_project_detail?p_id=" + project_id)
     .then(function (response) {
-      debugger
       if(response.data.rows != null){
         let user_detail = response.data.rows;
         console.log(response);
@@ -262,7 +259,6 @@ class ProjectView extends Component {
   }
   
   render() {
-    debugger
       const budget_range = this.state.data !== 'undefined' ? this.state.data.min_budget + " - " + 
       this.state.data.max_budget : null;
       let attachment_url, button, download_folder_link = null;

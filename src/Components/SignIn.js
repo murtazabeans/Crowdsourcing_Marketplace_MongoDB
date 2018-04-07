@@ -21,13 +21,13 @@ class SignIn extends Component {
   }
 
   componentWillMount(){
-    // var self = this;
-    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    // .then((response) => {
-    //   if(response.data.session.email !=  undefined){
-    //     window.location.href = "http://localhost:3000/projects";
-    //   }
-    // })
+    var self = this;
+    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    .then((response) => {
+      if(response.data.session.email !=  undefined){
+        window.location.href = "http://localhost:3000/projects";
+      }
+    })
   }
 
   handlePasswordChange(e){
@@ -47,8 +47,7 @@ class SignIn extends Component {
     let form_values = {email: this.state.email.trim(), password: this.state.password.trim()};
     let passwordErrorPresent = !this.validatePasswordFormat(this.state.password) ? true : false;
     let emailErrorPresent = !this.validateEmailFormat(this.state.email) ? true : false;
-    // emailErrorPresent || passwordErrorPresent ? "" : this.props.loginCredentials(form_values);
-    this.props.loginCredentials(form_values);
+    emailErrorPresent || passwordErrorPresent ? "" : this.props.loginCredentials(form_values);
   }
 
   validatePasswordFormat(password){

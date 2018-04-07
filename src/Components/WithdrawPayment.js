@@ -24,7 +24,6 @@ class WithdrawPayment extends Component {
       let formData = {amount: this.state.amount , user_id: user_id}
       axios.post("http://localhost:3001/withraw_amount", formData)
       .then(function (response) {
-        debugger
         if(!response.data.correctRequest){
           swal({
             type: 'error',

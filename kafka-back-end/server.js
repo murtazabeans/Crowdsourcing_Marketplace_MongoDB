@@ -91,7 +91,6 @@ signup_consumer.on('message', function(message){
       bcrypt.hash(form_values.password, salt, function(err, hash) {
         db.collection("users").insertOne({id: id, name: form_values.name, password: hash, email: form_values.email}, function(err, res) {
           if (err) throw err;
-
           db.collection("users").findOne({email: form_values.email}, function(err, results){
             if (err) throw err;
             var payloads = [
@@ -141,10 +140,7 @@ login_consumer.on('message', function(message){
 });
 
 get_all_projects.on('message', function(message){
-  console.log('In all projects consumer');
-  //console.log(JSON.stringify(message.value));
   var data = JSON.parse(message.value);
-
   mongoose.connect(url, function(err, db) {
     db.collection('projects').aggregate([
       { $lookup: {

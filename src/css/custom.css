@@ -3,6 +3,11 @@ body {
 	transition: background-color .5s;
 }
 
+#search_bar{
+	width: 40% !important;
+	margin-left: 30%
+}
+
 .creditCardForm {
 	max-width: 700px;
 	background-color: #fff;
@@ -11,6 +16,11 @@ body {
 	padding: 25px;
 	color: #4c4e56;
 }
+
+a.btn.btn-primary.session-signin {
+	margin-left: 35%;
+}
+
 .creditCardForm label {
 	width: 100%;
 	margin-bottom: 10px;

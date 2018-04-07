@@ -33,7 +33,6 @@ class AllUserBidProjects extends Component {
     if(e.target.value != ""){
       axios.get('http://localhost:3001/search_for_user_bid_projects?val=' + e.target.value + '&u_id=' + localStorage.user_id, { withCredentials: true })
       .then((response) => {
-        debugger
         response.data.data_present ? self.setState({data: response.data.rows}) : self.setState({data: []})
       })
     }
@@ -59,12 +58,10 @@ class AllUserBidProjects extends Component {
   }
 
   handlePageChange(e) {
-    debugger
     this.setState({currentPage: Number(e.target.dataset.id)})
   }
 
   handleNextPaginationButton(e) {
-    debugger
     const total_pages = this.state.data.length > 0 ? this.state.data.length/this.state.perPageRows : 0;
     if(this.state.data != [] && this.state.currentPage != Math.ceil(total_pages)){
       this.setState({currentPage: Number(this.state.currentPage + 1)})      
@@ -97,7 +94,6 @@ class AllUserBidProjects extends Component {
 
       if(currentTodos != null){
         projectList = currentTodos.map(project => {
-          debugger
           let user_bid = null;
           let price = 0;
           for(var i = 0; i < project.bids.length; i++){
@@ -118,6 +114,7 @@ class AllUserBidProjects extends Component {
     }
     return (
       <div class = "container">
+      <h1 id = "table_header" class="display-4">Your Bided Projects</h1>
         <ProjectSearchBar handleSearchBar={this.handleSearchBar}/>
         <table class="table details-table table-striped table-bordered">
           <thead class = "table-header">

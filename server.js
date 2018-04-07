@@ -8,9 +8,17 @@ var multiparty = require('multiparty');
 var http = require('http');
 var util = require('util');
 var fs = require('fs');
-var session = require('client-sessions');
 var nodemailer = require('nodemailer');
 var kafka = require('./kafka/client');
+var session = require('express-session');
+const MongoStore = require('connect-mongo')(session);
+const passport = require('passport');  
+
+var LocalStrategy = require('passport-local').Strategy;
+var mongodbStore = require('connect-mongo')(session);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 var transporter = nodemailer.createTransport({
   service: 'gmail',
@@ -27,16 +35,15 @@ var User = require('./model/users');
 var Project = require('./model/projects');
 var Bid = require('./model/bids');
 
-app.use(session({   
-	cookieName: 'session',    
-	secret: 'freelancer_session',    
-	duration: 30 * 60 * 1000,    //setting the time for active session
-  activeDuration: 5 * 60 * 1000,
+app.use(session({
+  name: 'session', 
+  store: new mongodbStore({mongooseConnection: mongoose.connection, touchAfter: 24 * 3600}), 
+  secret: 'qwertyuiop123456789', 
   resave: false,
-  saveUninitialized: true,
-  cookie: { secure: false }
+  saveUninitialized: false, 
+  cookie: {maxAge: 1000 * 60 * 15}
 }));
-  
+
 var port = process.env.API_PORT || 3001;
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -51,20 +58,65 @@ app.use(function(req, res, next) {
  next();
 });
 
-app.post('/signup', function(request, response){
-  data = request.body;
-  console.log("in sign up request maker")
-  kafka.make_request('register_topic', data, function(err, rows){
-    if (err) throw err;
-    request.session.name = rows.name;
-    request.session.email = rows.email;
-    response.json({rows: rows});
+passport.serializeUser(function(user, done) {
+  console.log("I am in serialize", + user)
+  console.log(user.id);
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) {
+  console.log("I am in deserialize", + id)
+  User.findById(user.id, function(err, user) {
+    if(err) {
+      console.error('There was an error accessing the records of' +
+      ' user with id: ' + id);
+      return console.log(err.message);
+    }
+    return done(null, user);
   })
 });
 
+passport.use('local-signup', new LocalStrategy({
+  usernameField : 'email',
+  passwordField : 'password',
+  passReqToCallback : true
+},
+function(req, email, password, done) {
+  var data = req.body;
+  kafka.make_request('register_topic', data, function(err, rows){
+    if (err) throw err;
+    console.log(rows);
+    var user = rows;
+    console.log("in signup strategy")
+    console.log(user);
+    return done(null, user);
+  })
+}));
+
+passport.use('local-login', new LocalStrategy({
+  usernameField : 'email',
+  passwordField : 'password',
+  passReqToCallback : true
+},
+function(req, email, password, done) {
+  var data = req.body;
+  kafka.make_request('login_topic', data, function(err, rows){
+    if(err) throw (err);
+      if(rows.length >= 1){ 
+        var isPasswordCorrect = bcrypt.compareSync(req.body.password, rows[0].password);
+        if(isPasswordCorrect){
+          var user = rows[0]
+          console.log(user);
+          return done(null, user);
+        }
+        else{return done(null, false);  }
+      }
+      else{ return done(null, false); }
+  });
+}));
+
 app.post('/check_email', function(request, response){
   data = request.body;
-  console.log("in email request maker")
   kafka.make_request('check_email', data, function(err, rows){
     console.log('in check email response');  
     if (err) throw err;
@@ -74,32 +126,53 @@ app.post('/check_email', function(request, response){
 });
 
 app.post('/signin', function(request, response){
-  data = request.body;
-  console.log("in email request maker")
-  kafka.make_request('login_topic', data, function(err, rows){
-    console.log('in check signin response');  
-    if (err) throw err;
-    console.log(rows)
-    if(rows.length >= 1){ 
-      isPasswordCorrect = bcrypt.compareSync(request.body.password, rows[0].password);
-      if(isPasswordCorrect){
-        request.session.name = rows[0].name;
-        request.session.email = rows[0].email;
-        console.log(request.session);
-        response.json({correctCredentials: true, rows: rows[0]})
-      }
-      else{response.json({correctCredentials: false});  }
+  passport.authenticate('local-login', function(err, user, info) {
+    if (err) throw (err);
+    
+    if (!user) {
+      response.json({correctCredentials: false});
     }
-    else{ response.json({correctCredentials: false}); }
-  }); 
+    else{
+      request.login(user, function(err){
+        if(err){
+          console.error(err);
+          return next(err);
+        }
+      });
+      response.json({correctCredentials: true, rows: user});
+    }
+  })(request, response);
+});
+
+app.post('/signup', function(request, response){
+  passport.authenticate('local-signup', function(err, user, info) {
+    if (err) throw (err);
+    
+    if (!user) {
+      response.json({correctCredentials: false});
+    }
+    else{
+      console.log("in signup method")
+      console.log(user);
+      request.login(user, function(err){
+        if(err){
+          console.error(err);
+          return next(err);
+        }
+      });
+      response.json({rows: user});
+    }
+  })(request, response);
 });
 
 app.get('/check_session', function(request, response){
   console.log(request.session);
-  response.json({session: request.session});
+  var session_value = request.session.passport != undefined ? request.session.passport.user : request.session;
+  response.json({session: session_value});
 })
 
 app.get('/destroy_session', function(request, response){
+  request.logout();
   request.session.destroy();
   response.json({message: "Session Destroyed"});
 });
@@ -114,8 +187,8 @@ app.get('/get_user', function(request, response){
 
 app.get('/get_all_projects', function(request, response){
   kafka.make_request('get_all_projects', {}, function(err, rows){
-    console.log('in check email response');  
     if (err) throw err;
+    console.log("I am in session")
     rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
   }); 
 });
@@ -148,7 +221,6 @@ app.post('/create_project', function(req, res){
         });
       });
     }
-    console.log("dbskdfjsf" );
     var name_of_file = fileName == undefined ? "" : fileName;
     fields["fileName"] = name_of_file;
     var data = {fields: fields};
@@ -277,8 +349,8 @@ app.post('/withraw_amount', function(request, response){
   })
 });
 
-app.post('/get-user-name', function(request, response){
-  var data = request.body;
+app.get('/get-user-name', function(request, response){
+  var data = request.query;
   kafka.make_request('get_user_name_topic', data, function(err, rows){
     if (err) throw err;
     console.log(rows);

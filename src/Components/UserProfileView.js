@@ -16,17 +16,16 @@ class UserProfileView extends Component {
   }
 
   componentWillMount(){
-    // var self = this;
-    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    // .then((response) => {
-    //   if(response.data.session.email ==  undefined){
-    //     window.location.href = "http://localhost:3000/signin";
-    //   }
-    //   else{
-    //     this.loadUserDetailsFromServer();
-    //   }
-    // })
-    this.loadUserDetailsFromServer();
+    var self = this;
+    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    .then((response) => {
+      if(response.data.session.email ==  undefined){
+        window.location.href = "http://localhost:3000/signin";
+      }
+      else{
+        this.loadUserDetailsFromServer();
+      }
+    })
   }
 
   loadUserDetailsFromServer(){
@@ -35,9 +34,7 @@ class UserProfileView extends Component {
       var self = this;
       axios.get("http://localhost:3001/get_user?id=" + id)
       .then(function (response) {
-        debugger
         if(response.data.rows != null){
-          debugger
           let user_detail = response.data.rows;
           console.log(response);
           self.setState({

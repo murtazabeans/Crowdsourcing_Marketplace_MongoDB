@@ -18,35 +18,20 @@ class AllTansactions extends Component {
   }
   
   componentWillMount(){
-    // var self = this;
-    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    // .then((response) => {
-    //   if(response.data.session.email ==  undefined){
-    //     window.location.href = "http://localhost:3000/signin";
-    //   }
-    // })
+    var self = this;
+    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    .then((response) => {
+      if(response.data.session.email ==  undefined){
+        window.location.href = "http://localhost:3000/signin";
+      }
+    })
   }
-
-  // handleSearchBar(e){
-  //   var self = this;
-  //   if(e.target.value != ""){
-  //     axios.get('http://localhost:3001/search_projects?val=' + e.target.value, { withCredentials: true })
-  //     .then((response) => {
-  //       debugger
-  //       self.setState({data: response.data.rows})
-  //     })
-  //   }
-  //   else{
-  //     this.props.get_all_projects(this);
-  //   }
-  // }
 
   // handlePageChange(e) {
   //   this.setState({currentPage: Number(e.target.dataset.id)})
   // }
 
   // handleNextPaginationButton(e) {
-  //   debugger
   //   const total_pages = this.state.data.length > 0 ? this.state.data.length/this.state.perPageRows : 0;
   //   if(this.state.data != [] && this.state.currentPage != Math.ceil(total_pages)){
   //     this.setState({currentPage: Number(this.state.currentPage + 1)})      
@@ -64,8 +49,6 @@ class AllTansactions extends Component {
     var self = this;
     axios.get('http://localhost:3001/past_payments?u_id=' + user_id, { withCredentials: true })
     .then((response) => {
-      debugger
-      var a = ""
       if(response.data.data_present){
         self.setState({data: response.data.rows, values_present: true})
       }
@@ -107,7 +90,7 @@ class AllTansactions extends Component {
     }
     return (
       <div className= "container">
-        <h1 id = "table_header">Transaction History</h1>
+        <h1 id = "table_header" class="display-4">Transaction History</h1>
         {/* <ProjectSearchBar handleSearchBar={this.handleSearchBar}/> */}
         <table className="table details-table table-striped table-bordered">
           <thead className = "table-header">

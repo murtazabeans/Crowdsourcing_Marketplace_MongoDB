@@ -30,14 +30,14 @@ class SignUp extends Component {
     this.handleEmailChange = this.handleEmailChange.bind(this);
   }
 
-  componentWillMount(){
-    // var self = this;
-    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    // .then((response) => {
-    //   if(response.data.session.email !=  undefined){
-    //     window.location.href = "http://localhost:3000/projects";
-    //   }
-    // })
+  componentDidMount(){
+    var self = this;
+    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    .then((response) => {
+      if(response.data.session.email !=  undefined){
+        window.location.href = "http://localhost:3000/projects";
+      }
+    })
   }
 
   handleNameChange(e){
@@ -65,7 +65,6 @@ class SignUp extends Component {
     
     axios.post('http://localhost:3001/check_email', form_values)
     .then((response) => {
-      debugger
       var self = this;
       if(response.data.emailPresent){
         document.getElementById("email-error").innerHTML = "Email already present";
@@ -174,10 +173,8 @@ function mapStateToProps(state){
 function mapDispatchToProps(dispatch){
   return{
     registerUser: (details) => {
-      debugger
       axios.post('http://localhost:3001/signup', details, { withCredentials: true })
       .then((response) => {
-        debugger
         window.location.href = "http://localhost:3000/projects";
         dispatch({type: 'LoggedIn', payload: response.data.rows});
         localStorage.setItem("isLoggedIn", true);

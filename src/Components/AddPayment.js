@@ -25,7 +25,6 @@ class AddPayment extends Component {
       let formData = {amount: this.state.amount , user_id: user_id}
       axios.post("http://localhost:3001/update_balance", formData)
       .then(function (response) {
-        debugger
         self.setState({
           amount: '',
           name: '', 

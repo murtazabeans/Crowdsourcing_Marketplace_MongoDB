@@ -13,14 +13,14 @@ class MyProjects extends Component {
     this.handlePageChange= this.handlePageChange.bind(this);
   }
 
-  componentWillMount(){
-    // var self = this;
-    // axios.get('http://localhost:3001/check_session', { withCredentials: true })
-    // .then((response) => {
-    //   if(response.data.session.email ==  undefined){
-    //     window.location.href = "http://localhost:3000/signin";
-    //   }
-    // })
+  componentDidMount(){
+    var self = this;
+    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    .then((response) => {
+      if(response.data.session.email ==  undefined){
+        window.location.href = "http://localhost:3000/signin";
+      }
+    })
   }
 
   handlePageChange(e) {
@@ -28,7 +28,6 @@ class MyProjects extends Component {
   }
 
   handleNextPaginationButton(e) {
-    debugger
     const total_pages = this.state.data.length > 0 ? this.state.data.length/this.state.perPageRows : 0;
     if(this.state.data != [] && this.state.currentPage != Math.ceil(total_pages)){
       this.setState({currentPage: Number(this.state.currentPage + 1)})      
@@ -67,7 +66,6 @@ class MyProjects extends Component {
     if(e.target.value != ""){
       axios.get('http://localhost:3001/search_for_user_published_projects?val=' + e.target.value + '&u_id=' + localStorage.user_id, { withCredentials: true })
       .then((response) => {
-        debugger
         response.data.data_present ? self.setState({data: response.data.rows}) : self.setState({data: []})
       })
     }
@@ -86,7 +84,7 @@ class MyProjects extends Component {
       const page_numbers = [];
       for (let i = 1; i <= Math.ceil(this.state.data.length / this.state.perPageRows); i++) {
         page_numbers.push(i);
-      }  
+      }
       
       pagination_list = page_numbers.map(number => {
         return (
@@ -112,6 +110,7 @@ class MyProjects extends Component {
     }
     return (
       <div class = "container">
+         <h1 id = "table_header" class="display-4">Your Projects</h1>
         <ProjectSearchBar handleSearchBar={this.handleSearchBar}/>
         <table class="table details-table table-striped table-bordered">
           <thead class = "table-header">
