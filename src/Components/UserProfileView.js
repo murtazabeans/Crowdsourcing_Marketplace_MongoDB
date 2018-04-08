@@ -12,10 +12,6 @@ class UserProfileView extends Component {
   }
 
   componentWillMount(){
-    
-  }
-
-  componentWillMount(){
     var self = this;
     axios.get('http://localhost:3001/check_session', { withCredentials: true })
     .then((response) => {

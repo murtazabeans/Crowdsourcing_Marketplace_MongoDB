@@ -10,11 +10,12 @@ var ProjectsSchema = new Schema({
   min_budget: String,
   max_budget: String,
   created_at: Date,
-  assigned_to: String,
+  assigned_to: { type: String, default: "" },
   file_name: String,
   date_of_completion: Date,
   folder_name: String,
-  payment_completed: { type: Boolean, default: false }
+  payment_completed: { type: Boolean, default: false },
+  status: String
 });
 
 module.exports = mongoose.model("Project", ProjectsSchema);

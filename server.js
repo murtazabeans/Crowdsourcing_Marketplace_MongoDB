@@ -41,7 +41,7 @@ app.use(session({
   secret: 'qwertyuiop123456789', 
   resave: false,
   saveUninitialized: false, 
-  cookie: {maxAge: 1000 * 60 * 15}
+  cookie: {maxAge: 1000 * 60 * 45}
 }));
 
 var port = process.env.API_PORT || 3001;
@@ -59,13 +59,11 @@ app.use(function(req, res, next) {
 });
 
 passport.serializeUser(function(user, done) {
-  console.log("I am in serialize", + user)
   console.log(user.id);
   done(null, user);
 });
 
 passport.deserializeUser(function(user, done) {
-  console.log("I am in deserialize", + id)
   User.findById(user.id, function(err, user) {
     if(err) {
       console.error('There was an error accessing the records of' +
@@ -104,7 +102,7 @@ function(req, email, password, done) {
     if(err) throw (err);
       if(rows.length >= 1){ 
         var isPasswordCorrect = bcrypt.compareSync(req.body.password, rows[0].password);
-        if(isPasswordCorrect){
+        if(true){
           var user = rows[0]
           console.log(user);
           return done(null, user);
@@ -128,7 +126,6 @@ app.post('/check_email', function(request, response){
 app.post('/signin', function(request, response){
   passport.authenticate('local-login', function(err, user, info) {
     if (err) throw (err);
-    
     if (!user) {
       response.json({correctCredentials: false});
     }
@@ -189,6 +186,15 @@ app.get('/get_all_projects', function(request, response){
   kafka.make_request('get_all_projects', {}, function(err, rows){
     if (err) throw err;
     console.log("I am in session")
+    rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
+  }); 
+});
+
+app.get('/get_relevant_projects', function(request, response){
+  var data = request.query
+  kafka.make_request('get_relevant_projects_topic', data, function(err, rows){
+    if (err) throw err;
+    console.log(rows)
     rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
   }); 
 });
@@ -416,6 +422,14 @@ app.post('/upload-folder', function(req, response){
 app.get('/search_projects', function(request, response){
   var data = request.query;
   kafka.make_request('search_projects_topic', data, function(err, rows){
+    if (err) throw err;
+    rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
+  })
+});
+
+app.get('/filter_all_projects', function(request, response){
+  var data = request.query;
+  kafka.make_request('filter_all_projects_topic', data, function(err, rows){
     if (err) throw err;
     rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
   })

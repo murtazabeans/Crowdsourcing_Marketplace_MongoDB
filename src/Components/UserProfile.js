@@ -4,11 +4,12 @@ import axios from 'axios';
 import SweetAlert from 'sweetalert-react';
 import ImageUpload from './ImageUpload'
 import swal from 'sweetalert2'
+import CreatableDemo from './CreatableDemo'
 
 class UserProfile extends Component {
   constructor(){
     super();
-    this.state =  {email: '', name: '', phno: '', skills: '', about_me : ''};
+    this.state =  {email: '', name: '', phno: '', skills: '', about_me : '', user_skills: []};
     this.handleContactChange = this.handleContactChange.bind(this);
     this.handleDescriptionChange =this.handleDescriptionChange.bind(this);
     this.handleEmailChange = this.handleEmailChange.bind(this);
@@ -43,10 +44,14 @@ class UserProfile extends Component {
       document.getElementById("description-error").innerHTML = "";
   }
 
-  handleSkillsChange(e){
-    this.setState({ skills: e.target.value });
-    e.target.value == "" ? document.getElementById("skills-error").innerHTML = "Please enter your Skills" : 
-      document.getElementById("skills-error").innerHTML = "";
+  // handleSkillsChange(e){
+  //   this.setState({ skills: e.target.value });
+  //   e.target.value == "" ? document.getElementById("skills-error").innerHTML = "Please enter your Skills" : 
+  //     document.getElementById("skills-error").innerHTML = "";
+  // }
+
+  handleSkillsChange(skills){
+    this.setState({ user_skills: skills });
   }
   
   handleNameChange(e){
@@ -85,16 +90,16 @@ class UserProfile extends Component {
   }
 
   handleFormSubmit(e){
-    e.preventDefault();
-    let form_values = {name: this.state.name.trim(), phone_number: this.state.phno.trim(), email: this.state.email.trim()
-      , about_me: this.state.about_me, skills: this.state.skills, id: localStorage.user_id};
-      
+    e.preventDefault();      
     let nameErrorPresent = !this.validateNameFormat(this.state.name) ? true : false;
     let emailErrorPresent = !this.validateEmailFormat(this.state.email) ? true : false;
     let contactErrorPresent = !this.validateContactFormat(this.state.phno) ? true : false;
     let descriptionErrorPresent = !this.validateDescriptionFormat(this.state.about_me) ? true : false;
-    let skillsErrorPresent = !this.validateSkillsFormat(this.state.skills) ? true : false;
+    let skillsErrorPresent = !this.validateSkillsFormat(this.state.user_skills) ? true : false;
     if(nameErrorPresent || emailErrorPresent || contactErrorPresent || descriptionErrorPresent || skillsErrorPresent){ return; }
+
+    let form_values = {name: this.state.name.trim(), phone_number: this.state.phno.trim(), email: this.state.email.trim()
+      , about_me: this.state.about_me, skills: this.state.user_skills.join(","), id: localStorage.user_id};
 
     var self = this;
     axios.post('http://localhost:3001/update_profile', form_values)
@@ -151,10 +156,13 @@ class UserProfile extends Component {
     return true;
   }
 
-  validateSkillsFormat(skills){
-    if(skills.trim() == ""){
+  validateSkillsFormat(user_skills){
+    if(user_skills.length == 0){
       document.getElementById("skills-error").innerHTML = "Please enter your Skills";
       return false;
+    }
+    else{
+      document.getElementById("skills-error").innerHTML = "";
     }
     return true;
   }
@@ -213,12 +221,15 @@ class UserProfile extends Component {
                 </div>
                 <div id = "description-error" class= "error"></div>
 
-                <div className="wrap-input100 validate-input m-b-26 div-space form-div" data-validate="Skills is required">
+                {/* <div className="wrap-input100 validate-input m-b-26 div-space form-div" data-validate="Skills is required">
                   <span className="label-input100">Skills</span>
                   <input className="input100" type="text" name="email" placeholder="Enter your Skills" value={ this.state.skills } 
                   onChange={ this.handleSkillsChange } />
                   <span className="focus-input100"></span>
-                </div>
+                </div> */}
+
+                <CreatableDemo handleSkillsChange={this.handleSkillsChange} skills= {this.state.skills}/>
+
                 <div id = "skills-error" class= "error"></div>
 
                 

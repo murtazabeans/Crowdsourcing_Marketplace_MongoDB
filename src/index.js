@@ -22,6 +22,7 @@ import MyProjects from './Components/MyProjects';
 import UserProfileView from './Components/UserProfileView';
 import Payments from './Components/Payments'
 import AllTransactions from './Components/AllTransactions'
+import RelevantProjects from './Components/RelevantProjects'
 
 function loadState() {
   try {
@@ -52,6 +53,7 @@ ReactDOM.render(
             <Route path="/edit_profile" component={UserProfile} />
             <Route path="/new-project" component={CreateProject} />
             <Route path="/projects" component={AllProjects} />
+            <Route path="/relevant-projects" component={RelevantProjects} />
             <Route path="/project-detail" component={ProjectView}/>
             <Route path="/payments" component={Payments}/>
             <Route path="/project-bids" component={AllProjectBids}/>

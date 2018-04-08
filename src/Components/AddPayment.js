@@ -38,6 +38,7 @@ class AddPayment extends Component {
           title: 'Approved',
           text: 'You have Successfully updated your balance'
         })
+        self.props.handleBalanceUpdate();
       })
     }
   }

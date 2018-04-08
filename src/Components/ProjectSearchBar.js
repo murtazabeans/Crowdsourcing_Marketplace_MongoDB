@@ -8,8 +8,6 @@ class ProjectSearchBar extends Component {
     axios.get("http://localhost:3001/get_all_projects")
     .then(function (response) {
       if(response.data.rows != null){
-        let user_detail = response.data.rows;
-        console.log(response);
         self.setState({
           data: response.data.rows
         })
@@ -21,14 +19,9 @@ class ProjectSearchBar extends Component {
 
   render() {
     return (
-      <div class= "container" id = "search_bar">
-        <div class="row">
-          <div class="col-lg-12">
-            <div class="input-group">
-
-              <input type="text" class="form-control" placeholder="Search project by name and skills" onChange = {this.props.handleSearchBar}/>
-            </div>
-          </div>
+      <div id = "search_bar">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search project by name and skills" onChange = {this.props.handleSearchBar}/>
         </div>
       </div>
     )

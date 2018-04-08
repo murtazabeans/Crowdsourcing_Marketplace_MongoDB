@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import ProjectDetail from './ProjectDetail'
+import RelevantProject from './RelevantProject'
 import ProjectSearchBar from './ProjectSearchBar'
 import {connect} from 'react-redux';
 import allreducers from '../reducers';
@@ -8,7 +8,7 @@ import allreducers from '../reducers';
 import reducer from '../reducers/all_projects';
 import Pagination from './Pagination'
 
-class AllProjects extends Component {
+class RelevantProjects extends Component {
 
   constructor(){
     super();
@@ -25,10 +25,27 @@ class AllProjects extends Component {
         window.location.href = "http://localhost:3000/signin";
       }
       else{
-        this.props.get_all_projects(this);
+        this.get_relevant_projects();
       }
     })
   }
+
+  get_relevant_projects() {
+    const user_id = localStorage.getItem("user_id");
+    var self = this;
+    axios.get("http://localhost:3001/get_relevant_projects?id=" + user_id , { withCredentials: true })
+    .then(function (response) {
+      if(response.data.rows != null){
+        let user_detail = response.data.rows;
+        self.setState({
+          data: response.data.rows
+        })
+        return;
+      }
+      return;
+    })
+  }
+
 
   handleSearchBar(e){
     var self = this;
@@ -60,29 +77,9 @@ class AllProjects extends Component {
     }
   }
 
-  handleDropdownChange(e){
-    var filter_value = e.target.options[e.target.selectedIndex].dataset.value;
-    if(filter_value == undefined){return};
-    if(filter_value == "a"){  this.props.get_all_projects(this); return; }
-    var self = this;
-    axios.get("http://localhost:3001/filter_all_projects?val="+ filter_value)
-    .then(function (response) {
-      if(response.data.data_present){
-        self.setState({
-          data: response.data.rows
-        })
-        return;
-      }
-      else{
-        self.setState({data: []});
-      }
-      return;
-    })
-  }
-
   render() {
     let projectList, pagination_list=null;
-    if(this.state.data != []){
+    if(this.state.data.length != 0){
       const indexOfLastTodo = this.state.currentPage * this.state.perPageRows;
       const indexOfFirstTodo = indexOfLastTodo - this.state.perPageRows;
       const currentTodos = this.state.data.slice(indexOfFirstTodo, indexOfLastTodo);
@@ -96,20 +93,20 @@ class AllProjects extends Component {
           <li class="page-item" key= {number} data-id={number} onClick={this.handlePageChange} ><a data-id={number} class="page-link" href="#">{number}</a></li>
         );
       });
-      if(currentTodos != null){
+      if(currentTodos != null ){
         projectList = currentTodos.map(project => {
           return(
-            <ProjectDetail key = {project.id} id = {project.id} number_of_bids = {project.bids.length}  name={project.title} description={project.description} skills_required = {project.skills_required}
+            <RelevantProject key = {project.id} id = {project.id} number_of_bids = {project.bids.length}  name={project.title} description={project.description} skills_required = {project.skills_required}
             max_budget = {project.max_budget} min_budget = {project.min_budget} employer_id = {project.users[0].id} employer_name={project.users[0].name}   />
           )
         })
       }
     }
-    
+
     return (
       <div className= "container">
-        <h1 id = "table_header" class="display-4">All Projects</h1>
-        <div class="row">
+        <h1 id = "table_header" class="display-4">Relevant Projects</h1>
+        {/* <div class="row">
           <div class="col-lg-8">
           <ProjectSearchBar handleSearchBar={this.handleSearchBar}/>
           </div>
@@ -123,7 +120,7 @@ class AllProjects extends Component {
               </select>
             </div>
           </div>
-        </div>
+        </div> */}
         
         
         <table className="table details-table table-striped table-bordered">
@@ -157,22 +154,8 @@ function mapStateToProps(state){
 
 function mapDispatchToProps(dispatch){
   return{
-    get_all_projects: (obj) => {
-      var self = obj;
-      axios.get("http://localhost:3001/get_all_projects", { withCredentials: true })
-      .then(function (response) {
-        if(response.data.rows != null){
-          let user_detail = response.data.rows;
-          dispatch({type: 'page_load', payload: response.data.rows});
-          self.setState({
-            data: response.data.rows
-          })
-          return;
-        }
-        return;
-      })
-    }
+    
   }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AllProjects)
+export default RelevantProjects;

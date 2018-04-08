@@ -43,6 +43,7 @@ class WithdrawPayment extends Component {
             text: 'Your withdrawal is Successful!'
           })
         }
+        self.props.handleBalanceUpdate();
       })
     }
   }

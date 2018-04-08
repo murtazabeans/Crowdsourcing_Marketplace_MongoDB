@@ -4,8 +4,13 @@ body {
 }
 
 #search_bar{
-	width: 40% !important;
+	width: 55% !important;
 	margin-left: 30%
+}
+
+.dropdown{
+	margin-top: 2%;
+	width: 30%;
 }
 
 .creditCardForm {
@@ -19,6 +24,11 @@ body {
 
 a.btn.btn-primary.session-signin {
 	margin-left: 35%;
+}
+
+.Select.is-clearable.is-searchable.Select--multi {
+	width: 400px;
+	margin-top: 20px;
 }
 
 .creditCardForm label {

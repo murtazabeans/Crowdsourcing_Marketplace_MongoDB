@@ -3,17 +3,28 @@ import Background from '../img/bg-01.jpg';
 import axios from 'axios';
 import SweetAlert from 'sweetalert-react';
 import swal from 'sweetalert2'
+import CreatableDemo from './CreatableDemo'
 
 class CreateProject extends Component {
   constructor(){
     super();
-    this.state =  {title: '', description: '', skills_required: '', min_budget : '', max_budget: '', file: ''};
+    this.state =  {title: '', description: '', skills_required: [], min_budget : '', max_budget: '', file: ''};
     this.handleDescriptionChange = this.handleDescriptionChange.bind(this);
     this.handleTitleChange = this.handleTitleChange.bind(this);
     this.handleSkillsChange = this.handleSkillsChange.bind(this);
     this.handleMinBudgetChange = this.handleMinBudgetChange.bind(this);
     this.handleMaxBudgetChange = this.handleMaxBudgetChange.bind(this);
     this.handleFormSubmit = this.handleFormSubmit.bind(this);
+  }
+
+  componentDidMount(){
+    var self = this;
+    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    .then((response) => {
+      if(response.data.session.email ==  undefined){
+        window.location.href = "http://localhost:3000/signin";
+      }
+    })
   }
 
   handleDescriptionChange(e){
@@ -28,10 +39,14 @@ class CreateProject extends Component {
       document.getElementById("title-error").innerHTML = "";
   }
 
-  handleSkillsChange(e){
-    this.setState({ skills_required: e.target.value });
-    e.target.value == "" ? document.getElementById("skills-error").innerHTML = "Please enter Skills Required" : 
-      document.getElementById("skills-error").innerHTML = "";
+  // handleSkillsChange(e){
+  //   this.setState({ skills_required: e.target.value });
+  //   e.target.value == "" ? document.getElementById("skills-error").innerHTML = "Please enter Skills Required" : 
+  //     document.getElementById("skills-error").innerHTML = "";
+  // }
+  
+  handleSkillsChange(skills){
+    this.setState({ skills_required: skills });
   }
 
   handleMinBudgetChange(e){
@@ -55,19 +70,7 @@ class CreateProject extends Component {
       'content-type': 'multipart/form-data'
       }
     }
-    formData.append('title', this.state.title);
-    formData.append('description', this.state.description);
-    formData.append('skills_required', this.state.skills_required);
-    formData.append('minimum_budget', this.state.min_budget);
-    formData.append('maximum_budget', this.state.max_budget);
-    formData.append('user_id', localStorage.user_id);
-
-
     let user_id = localStorage.user_id;
-    // let form_values = {title: this.state.title, description: this.state.description, skills_required: this.state.skills_required
-    //   , minimum_budget: this.state.min_budget, maximum_budget: this.state.max_budget, user_id: localStorage.user_id};
-    //   console.log(form_values);
-    
     let titleErrorPresent = !this.validateTitleFormat(this.state.title) ? true : false;
     let descriptionErrorPresent = !this.validateDescriptionFormat(this.state.description) ? true : false;
     let skillsErrorPresent = !this.validateSkillsFormat(this.state.skills_required) ? true : false;
@@ -75,6 +78,12 @@ class CreateProject extends Component {
     let maxBudgetErrorPresent = !this.validateMaxBudgetFormat(this.state.max_budget) ? true : false;
 
     if(titleErrorPresent || descriptionErrorPresent || skillsErrorPresent || minBudgetErrorPresent || maxBudgetErrorPresent) {return;}
+    formData.append('title', this.state.title);
+    formData.append('description', this.state.description);
+    formData.append('skills_required', this.state.skills_required);
+    formData.append('minimum_budget', this.state.min_budget);
+    formData.append('maximum_budget', this.state.max_budget);
+    formData.append('user_id', localStorage.user_id);
     if( user_id != null){
       var self = this;
       axios.post("http://localhost:3001/create_project", formData, config)
@@ -109,10 +118,12 @@ class CreateProject extends Component {
   }
 
   validateSkillsFormat(skills){
-    
-    if(skills.trim() == ""){
+    if(skills.length == 0){
       document.getElementById("skills-error").innerHTML = "Please enter Skills Required in this Project";
       return false;
+    }
+    else{
+      document.getElementById("skills-error").innerHTML = "";
     }
     return true;
   }
@@ -203,12 +214,15 @@ class CreateProject extends Component {
                 </div>
                 <div id = "description-error" class= "error"></div>
                 
-                <div className="wrap-input100 validate-input m-b-26 div-space form-div" data-validate="Skills are required">
+                {/* <div className="wrap-input100 validate-input m-b-26 div-space form-div" data-validate="Skills are required">
                   <span className="label-input100">Skills</span>
                   <input className="input100" type="text" name="skills_required" placeholder="Enter Skills Required" value={ this.state.skills_required } 
                   onChange={ this.handleSkillsChange } />
                   <span className="focus-input100"></span>
                 </div>
+                <div id = "skills-error" class= "error"></div> */}
+
+                <CreatableDemo handleSkillsChange={this.handleSkillsChange}/>
                 <div id = "skills-error" class= "error"></div>
 
                 <div className="wrap-input100 validate-input m-b-26 div-space form-div" data-validate="Phone Number is required">

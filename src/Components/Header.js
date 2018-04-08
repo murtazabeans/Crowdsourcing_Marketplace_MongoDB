@@ -48,12 +48,13 @@ class Header extends Component {
   }
 
   render(props) {
-    let  signin_btn, session_link, transaction_url, payment_url, post_project, user_profile, projects_page, bid_page, mybidprojects, my_projects, user_name = null;
+    let  signin_btn, relevant_projects_page, session_link, transaction_url, payment_url, post_project, user_profile, projects_page, bid_page, mybidprojects, my_projects, user_name = null;
     let isLoggedIn = localStorage.getItem("isLoggedIn");
     if(this.state.sessionPresent) {
       mybidprojects = <a className="sidebar-options" href="/my-bid-projects">My Bid Projects</a>
       my_projects = <a className="sidebar-options" href="my-projects">My Projects</a>
       projects_page = <a className="sidebar-options" href = "/projects"  >All Projects</a>
+      relevant_projects_page = <a className="sidebar-options" href = "/relevant-projects"  >Relevant Projects</a>
       post_project = <a className="sidebar-options" href="/new-project">Post Project </a>
       user_profile = <a className="sidebar-options" href="/edit_profile">Edit Profile </a>
       payment_url = <a className="sidebar-options" href="/payments">Manage Payments</a>
@@ -77,6 +78,7 @@ class Header extends Component {
             { mybidprojects }
             { my_projects }
             { projects_page }
+            { relevant_projects_page }
             { post_project }
             { user_profile }
             { payment_url }

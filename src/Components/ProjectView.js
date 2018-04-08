@@ -271,7 +271,7 @@ class ProjectView extends Component {
         let download_folder_path = require('../project-file/' + this.state.data.folder_name);
         download_folder_link = <a href = {download_folder_path} className="custom-file-upload form-choose download-link download-folder"  download>Download Folder</a>
       }
-      if(this.state.data.assigned_to == undefined){
+      if(this.state.data.assigned_to == undefined || this.state.data.assigned_to == ""){
         button = <button className="link-style login100-form-btn" onClick={this.handleBidClick}>
           Click to Bid
         </button>

@@ -9,12 +9,21 @@ class Payments extends Component {
 
   constructor(){
     super();
-    this.state = {data: [], values_present: false}
+    this.state = {data: [], values_present: false, userBalance: 0}
   }
 
   componentDidMount(){
     document.getElementById("root").style.width = "99%";
     document.getElementById("payment-withdraw").style.display = "none"
+    var self = this;
+    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    .then((response) => {
+      if(response.data.session.email ==  undefined){
+        window.location.href = "http://localhost:3000/signin";
+        return;
+      }
+    })
+    this.handleBalanceUpdate();
     this.getPaymentForUser();
   }
 
@@ -23,9 +32,20 @@ class Payments extends Component {
     var self = this;
     axios.get('http://localhost:3001/past_payments?u_id=' + user_id, { withCredentials: true })
     .then((response) => {
-      var a = ""
       if(response.data.data_present){
         self.setState({data: response.data.rows, values_present: true})
+      }
+    })
+  }
+  
+  handleBalanceUpdate(){
+    const user_id = localStorage.getItem("user_id");
+    var self = this;
+    axios.get('http://localhost:3001/get_user?id=' + user_id, { withCredentials: true })
+    .then((response) => {
+      if(response.data.correctCredentials){
+        var user_balance = response.data.rows.balance == undefined ? 0 : response.data.rows.balance
+        self.setState({userBalance: user_balance})
       }
     })
   }
@@ -42,17 +62,20 @@ class Payments extends Component {
       pie_chart = <div id="graph_div"><h1 id = "graph_header">Payments</h1><PieChart slices={[ {  color: '#f00', value: amount_debited,  },  { color: '#0f0', value: amount_credited, }, ]}/></div>
     }
     return (
-      <div class="modal-body row">
-        
-        <div class="col-md-6">
-          <AddPayment />
+      <div>
+        <h2 id = "table_header" class="display-4">Balance: ${this.state.userBalance}</h2>
+        <div class="modal-body row">
+          <div class="col-md-6">
+            <AddPayment handleBalanceUpdate={this.handleBalanceUpdate.bind(this)} />
+          </div>
+          <div class="col-md-6">
+            <WithdrawPayment handleBalanceUpdate={this.handleBalanceUpdate.bind(this)}/>
+          </div>
+          <br/>
+          {pie_chart}
         </div>
-        <div class="col-md-6">
-          <WithdrawPayment />
-        </div>
-        <br/>
-        {pie_chart}
       </div>
+      
     )
   }
 }

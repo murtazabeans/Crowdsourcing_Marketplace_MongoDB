@@ -50,6 +50,8 @@ var upload_project_folder_consumer = connection.getConsumer('upload_project_fold
 var past_payments_consumer = connection.getConsumer('past_payments_topic');
 var search_for_user_bid_projects_consumer = connection.getConsumer('search_for_user_bid_projects_topic');
 var search_for_user_published_projects_consumer = connection.getConsumer('search_for_user_published_projects_topic');
+var filter_all_projects_consumer =  connection.getConsumer('filter_all_projects_topic');
+var get_relevant_projects_consumer = connection.getConsumer('get_relevant_projects_topic');
 
 email_check_consumer.on('message', function(message){
   console.log(JSON.stringify(message.value));
@@ -178,12 +180,81 @@ get_all_projects.on('message', function(message){
   });
 });
 
+
+
+
+get_relevant_projects_consumer.on('message', function(message){
+  var data = JSON.parse(message.value);
+  form_values = data.data;
+  console.log(form_values)
+  mongoose.connect(url, function(err, db) {
+    console.log("I have reached")
+    db.collection("users").find({ id: form_values.id }).toArray(function(err, user) {
+      db.collection('projects').aggregate([
+        { $lookup: {
+              from: 'users',
+              localField: 'user_id',
+              foreignField: 'id',
+              as: 'users'
+            }
+          },
+          {
+            $lookup: {
+              from: 'bids',
+              localField: 'id',
+              foreignField: 'project_id',
+              as: 'bids'
+            }
+          },
+   
+        ]).toArray(function(err, projects) {
+        if (err) throw err;
+        //db.close();
+        console.log(user[0].skills);
+        var results = [];
+        if(user[0].skills != undefined && projects.length >=1){
+
+          let user_skills = user[0].skills.split(",");
+          
+          for(let i = 0; i < projects.length; i++){
+            var project_skills_required = projects[i].skills_required.split(",");
+            var projects_upper_case = project_skills_required.map(function(x){ return x.toUpperCase() })
+            let count = 0;
+            for(let j=0; j < user_skills.length; j++){
+              projects_upper_case.includes(user_skills[j].toUpperCase()) ? count++ : "";
+            }
+            console.log(projects[i].name + "   " + count + "       " + projects[i].skills_required)
+            if(count >= 3){
+              results.push(projects[i]);
+            }
+          }
+
+        }
+        var payloads = [
+          { topic: data.replyTo,
+              messages:JSON.stringify({
+                correlationId:data.correlationId,
+                data : results
+              }),
+            partition : 0
+          }
+        ];
+        producer.send(payloads, function(err, data){
+  
+        });
+      });
+    });
+  });
+});
+
+
+
+
 get_user_values_consumer.on('message', function(message){
   console.log('In all projects consumer');
   //console.log(JSON.stringify(message.value));
   var data = JSON.parse(message.value);
   var form_values = data.data;
-  console.log(form_values);
   mongoose.connect(url, function(err, db) {
     db.collection("users").find({ id: form_values.id }).toArray(function(err, results) {
       if (err) throw err;
@@ -235,8 +306,6 @@ update_user_profile_consumer.on('message', function(message){
 });
 
 project_creation_consumer.on('message', function(message){
-  console.log('In all projects consumer');
-  //console.log(JSON.stringify(message.value));
   var data = JSON.parse(message.value);
   var form_values = data.data;
   console.log(form_values);
@@ -246,7 +315,7 @@ project_creation_consumer.on('message', function(message){
 
   mongoose.connect(url, function(err, db) {
     db.collection("projects").insertOne({id: project_id, title: form_values.fields.title[0], description: form_values.fields.description[0], skills_required: form_values.fields.skills_required[0], min_budget: form_values.fields.minimum_budget[0], 
-      max_budget: form_values.fields.maximum_budget[0], user_id: form_values.fields.user_id[0], created_at: new Date().toLocaleString(), file_name: form_values.fields.fileName}, function(err, res) {
+      max_budget: form_values.fields.maximum_budget[0], user_id: form_values.fields.user_id[0], created_at: new Date().toLocaleString(), file_name: form_values.fields.fileName, payment_completed: false, status: "o"}, function(err, res) {
       if (err) throw err;
       var payloads = [
         { topic: data.replyTo,
@@ -786,6 +855,52 @@ search_projects_consumer.on('message', function(message){
  });
 });
 
+filter_all_projects_consumer.on('message', function(message){
+  var data = JSON.parse(message.value);
+  var form_values = data.data;
+
+  mongoose.connect("mongodb://root:root@ds121665.mlab.com:21665/freelancer", function(err, db) {
+   db.collection('projects').aggregate([
+     { $lookup:
+         {
+           from: 'users',
+           localField: 'user_id',
+           foreignField: 'id',
+           as: 'users'
+         }
+       },
+       {
+         $lookup:
+         {
+           from: 'bids',
+           localField: 'id',
+           foreignField: 'project_id',
+           as: 'bids'
+         }
+       },
+       { "$match": { "status": form_values.val} },
+        
+     ]).toArray(function(err, results) {
+     if (err) throw err;
+     console.log("Fetching results");
+     console.log(results)
+    //db.close();
+    var payloads = [
+      { topic: data.replyTo,
+          messages:JSON.stringify({
+            correlationId:data.correlationId,
+            data : results
+          }),
+        partition : 0
+      }
+    ];
+    producer.send(payloads, function(err, data){
+      console.log("User document returned");
+    });
+   });
+ });
+});
+
 make_payment_consumer.on('message', function(message){
   var data = JSON.parse(message.value);
   var form_values = data.data;
@@ -845,7 +960,7 @@ make_payment_consumer.on('message', function(message){
                   if (err) throw err;
                 });
                 var project = {id: form_values.project_id};
-                var new_project_values = { $set: {payment_completed: true }}
+                var new_project_values = { $set: {payment_completed: true, status: "c" }}
                 db.collection("projects").updateOne(project, new_project_values, function(err, res) {
                   if (err) throw err;
                 });
@@ -924,7 +1039,7 @@ hire_user_consumer.on('message', function(message){
       var date = new Date();
       var update_query = {id: form_values.p_id};
       console.log("hello")
-      var updated_values = { $set: {assigned_to: form_values.free_lancer_id, 
+      var updated_values = { $set: {assigned_to: form_values.free_lancer_id, status: "og", 
         date_of_completion: date.setDate(date.getDate() + parseInt(rows[0].number_of_days))} };
       db.collection("projects").updateOne(update_query, updated_values, function(err, res) {  
         if (err) throw err;
