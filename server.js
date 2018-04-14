@@ -12,7 +12,8 @@ var nodemailer = require('nodemailer');
 var kafka = require('./kafka/client');
 var session = require('express-session');
 const MongoStore = require('connect-mongo')(session);
-const passport = require('passport');  
+const passport = require('passport');
+var config = require('./src/config');
 
 var LocalStrategy = require('passport-local').Strategy;
 var mongodbStore = require('connect-mongo')(session);
@@ -50,7 +51,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 app.use(function(req, res, next) {
- res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+ res.setHeader('Access-Control-Allow-Origin', config.host + ":3000");
  res.setHeader('Access-Control-Allow-Credentials', 'true');
  res.setHeader('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT,DELETE');
  res.setHeader('Access-Control-Allow-Headers', 'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers');
@@ -102,7 +103,7 @@ function(req, email, password, done) {
     if(err) throw (err);
       if(rows.length >= 1){ 
         var isPasswordCorrect = bcrypt.compareSync(req.body.password, rows[0].password);
-        if(true){
+        if(isPasswordCorrect){
           var user = rows[0]
           console.log(user);
           return done(null, user);
@@ -171,6 +172,7 @@ app.get('/check_session', function(request, response){
 app.get('/destroy_session', function(request, response){
   request.logout();
   request.session.destroy();
+  console.log("Session Dest")
   response.json({message: "Session Destroyed"});
 });
 
@@ -252,6 +254,7 @@ app.get('/get_project_detail', function(request, response){
     rows.length >= 1 ? response.json({data_present: true, rows: rows[0]}) :  response.json({data_present: false});
   })
 });
+
 
 app.post('/submit_bid', function(request, response){
   var data = request.body;

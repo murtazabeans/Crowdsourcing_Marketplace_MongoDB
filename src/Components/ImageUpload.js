@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import swal from 'sweetalert2'
+var config_header = require('../config');
 
 class ImageUpload extends Component {
   constructor(){
@@ -16,7 +17,7 @@ class ImageUpload extends Component {
     let id = localStorage.user_id
     if( id != null){
       var self = this;
-      axios.get("http://localhost:3001/get_user?id=" + id)
+      axios.get(config_header.host + ":3001/get_user?id=" + id)
       .then(function (response) {
         if(response.data.rows != null){
           let user_detail = response.data.rows;
@@ -33,7 +34,6 @@ class ImageUpload extends Component {
 
   handleImageChange(e){
     e.preventDefault();
-
     let reader = new FileReader();
     let file = e.target.files[0]
     reader.onloadend = () => {
@@ -61,7 +61,7 @@ class ImageUpload extends Component {
     }
     var self = this;
     if(this.state.file != ""){
-      axios.post("http://localhost:3001/upload-Image", formData, config)
+      axios.post(config_header.host + ":3001/upload-Image", formData, config)
       .then(function (response) {
         if(response.data.fileType != null){
           let user_detail = response.data.rows;

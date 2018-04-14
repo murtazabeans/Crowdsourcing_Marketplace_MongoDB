@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import Moment from 'react-moment';
+var config = require('../config');
 
 
 class MyProject extends Component {
@@ -13,17 +14,17 @@ class MyProject extends Component {
 
   handleProjectNameClick(e){
     localStorage.setItem('project_id', e.target.dataset.attr);
-    window.location.href = "http://localhost:3000/project-detail"
+    window.location.href = config.host + ":3000/project-detail"
   }
 
   handleEmployerNameClick(e){
     localStorage.setItem('profile_id', e.target.dataset.employerid);
-    window.location.href = "http://localhost:3000/profile"
+    window.location.href = config.host + ":3000/profile"
   }
 
   handleFreeLancerNameClick(e){
     localStorage.setItem('profile_id', e.target.dataset.freelancerid);
-    window.location.href = "http://localhost:3000/profile"
+    window.location.href = config.host + ":3000/profile"
   }
 
   getProjectStatus(completion_date){

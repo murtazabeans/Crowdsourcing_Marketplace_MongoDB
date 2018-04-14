@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import SweetAlert from 'sweetalert-react';
 import swal from 'sweetalert2'
+var config = require('../config');
 
 class AddPayment extends Component {
 
@@ -23,7 +24,7 @@ class AddPayment extends Component {
     if( user_id != null){
       var self = this;
       let formData = {amount: this.state.amount , user_id: user_id}
-      axios.post("http://localhost:3001/update_balance", formData)
+      axios.post(config.host + ":3001/update_balance", formData)
       .then(function (response) {
         self.setState({
           amount: '',

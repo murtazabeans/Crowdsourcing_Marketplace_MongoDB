@@ -3,6 +3,7 @@ import axios from 'axios';
 import AddPayment from './AddPayment'
 import WithdrawPayment from './WithdrawPayment'
 import PieChart from 'react-simple-pie-chart';
+var config = require('../config');
 
 
 class Payments extends Component {
@@ -16,10 +17,10 @@ class Payments extends Component {
     document.getElementById("root").style.width = "99%";
     document.getElementById("payment-withdraw").style.display = "none"
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
+        window.location.href = config.host + ":3000/signin";
         return;
       }
     })
@@ -30,7 +31,7 @@ class Payments extends Component {
   getPaymentForUser(){
     var user_id = localStorage.user_id;
     var self = this;
-    axios.get('http://localhost:3001/past_payments?u_id=' + user_id, { withCredentials: true })
+    axios.get(config.host + ":3001/past_payments?u_id=" + user_id, { withCredentials: true })
     .then((response) => {
       if(response.data.data_present){
         self.setState({data: response.data.rows, values_present: true})
@@ -41,7 +42,7 @@ class Payments extends Component {
   handleBalanceUpdate(){
     const user_id = localStorage.getItem("user_id");
     var self = this;
-    axios.get('http://localhost:3001/get_user?id=' + user_id, { withCredentials: true })
+    axios.get(config.host + ":3001/get_user?id=" + user_id, { withCredentials: true })
     .then((response) => {
       if(response.data.correctCredentials){
         var user_balance = response.data.rows.balance == undefined ? 0 : response.data.rows.balance

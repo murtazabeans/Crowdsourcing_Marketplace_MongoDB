@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import ProjectBid from './ProjectBid'
+var config = require('../config');
 
 class AllProjectBids extends Component {
 
@@ -16,10 +17,10 @@ class AllProjectBids extends Component {
 
   componentWillMount(){
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
+        window.location.href = config.host + ":3000/signin";
       }
     })
   }
@@ -32,7 +33,7 @@ class AllProjectBids extends Component {
     var self = this;
     var new_state = this.state.sort_state == 1 ? -1 : 1;
     let project_id = localStorage.getItem("project_id")
-    axios.get("http://localhost:3001/get_project_bids?pid=" + project_id + "&s=" + this.state.sort_state)
+    axios.get(config.host + ":3001/get_project_bids?pid=" + project_id + "&s=" + this.state.sort_state)
     .then(function (response) {
       if(response.data.rows != null){
         let user_detail = response.data.rows;

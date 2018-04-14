@@ -1,8 +1,9 @@
 var assert = require('assert');
 var request = require('request');
+var config = require('../config');
 
 it('Checks Correct Login', function(done) {
-  request.post('http://localhost:3001/signin', { form: { email: "murtaza.manasawala@sjsu.edu", password: "12345678" } },
+  request.post(config.host + ":3001/signin", { form: { email: "murtaza.manasawala@sjsu.edu", password: "12345678" } },
     function (error, response, body) {
       assert.equal(200, response.statusCode);
       done();
@@ -11,14 +12,14 @@ it('Checks Correct Login', function(done) {
 
 it('Submit Bid Value', function(done) {
   let form_values = { form: { user_id: "202", project_id: "41", no_of_days: "25", price: "800" } } 
-  request.post('http://localhost:3001/submit_bid', form_values, function (error, response, body) {
+  request.post(config.host + ":3001/submit_bid", form_values, function (error, response, body) {
       assert.equal(200, response.statusCode);
       done();
     });
 });
 
 it('Fetch All Projects', function(done) {
-  request.get('http://localhost:3001/get_all_projects', function (error, response, body) {
+  request.get(config.host + ":3001/get_all_projects", function (error, response, body) {
       assert.equal(200, response.statusCode);
       done();
   });

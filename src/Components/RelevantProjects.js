@@ -4,9 +4,9 @@ import RelevantProject from './RelevantProject'
 import ProjectSearchBar from './ProjectSearchBar'
 import {connect} from 'react-redux';
 import allreducers from '../reducers';
-// import UserSession from '../reducers/user-session'
 import reducer from '../reducers/all_projects';
-import Pagination from './Pagination'
+import Pagination from './Pagination';
+var config = require('../config');
 
 class RelevantProjects extends Component {
 
@@ -19,10 +19,10 @@ class RelevantProjects extends Component {
   
   componentDidMount(){
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
+        window.location.href = config.host + ":3000/signin";
       }
       else{
         this.get_relevant_projects();
@@ -33,7 +33,7 @@ class RelevantProjects extends Component {
   get_relevant_projects() {
     const user_id = localStorage.getItem("user_id");
     var self = this;
-    axios.get("http://localhost:3001/get_relevant_projects?id=" + user_id , { withCredentials: true })
+    axios.get(config.host + ":3001/get_relevant_projects?id=" + user_id , { withCredentials: true })
     .then(function (response) {
       if(response.data.rows != null){
         let user_detail = response.data.rows;
@@ -46,17 +46,16 @@ class RelevantProjects extends Component {
     })
   }
 
-
   handleSearchBar(e){
     var self = this;
     if(e.target.value != ""){
-      axios.get('http://localhost:3001/search_projects?val=' + e.target.value, { withCredentials: true })
+      axios.get(config.host + ":3001/search_projects?val=" + e.target.value, { withCredentials: true })
       .then((response) => {
         response.data.data_present ? self.setState({data: response.data.rows}) : self.setState({data: []})
       })
     }
     else{
-      this.props.get_all_projects(this);
+      self.get_relevant_projects();
     }
   }
 
@@ -106,21 +105,14 @@ class RelevantProjects extends Component {
     return (
       <div className= "container">
         <h1 id = "table_header" class="display-4">Relevant Projects</h1>
-        {/* <div class="row">
+        <div class="row">
           <div class="col-lg-8">
           <ProjectSearchBar handleSearchBar={this.handleSearchBar}/>
           </div>
           <div class="col-lg-4">
-            <div class="form-group dropdown">
-              <select class="form-control" id="sel1" onChange = {this.handleDropdownChange.bind(this)}>
-                <option data-value="a">All Projects</option>
-                <option data-value="o">Open Projects</option>
-                <option data-value="og">On Going Projects</option>
-                <option data-value="c" >Closed Projects</option>
-              </select>
-            </div>
+            
           </div>
-        </div> */}
+        </div>
         
         
         <table className="table details-table table-striped table-bordered">

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {connect} from 'react-redux';
 import axios from 'axios';
+var config = require('../config');
 
 class Header extends Component {
   constructor(){
@@ -11,7 +12,7 @@ class Header extends Component {
 
   componentWillMount(){
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email !=  undefined){
         self.setState({
@@ -41,10 +42,10 @@ class Header extends Component {
 
   handleSignOut(e){
     localStorage.clear();
-    axios.get('http://localhost:3001/destroy_session', { withCredentials: true })
+    axios.get(config.host + ":3001/destroy_session", { withCredentials: true })
     .then((response) => {
     })
-    window.location.href = "http://localhost:3000";
+    window.location.href = config.host + ":3000";
   }
 
   render(props) {

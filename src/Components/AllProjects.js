@@ -7,6 +7,8 @@ import allreducers from '../reducers';
 // import UserSession from '../reducers/user-session'
 import reducer from '../reducers/all_projects';
 import Pagination from './Pagination'
+import { request } from 'http';
+var config = require('../config');
 
 class AllProjects extends Component {
 
@@ -19,10 +21,11 @@ class AllProjects extends Component {
   
   componentDidMount(){
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
+      debugger
       if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
+        window.location.href = config.host + ":3000/signin";
       }
       else{
         this.props.get_all_projects(this);
@@ -33,7 +36,7 @@ class AllProjects extends Component {
   handleSearchBar(e){
     var self = this;
     if(e.target.value != ""){
-      axios.get('http://localhost:3001/search_projects?val=' + e.target.value, { withCredentials: true })
+      axios.get(config.host + ":3001/search_projects?val=" + e.target.value, { withCredentials: true })
       .then((response) => {
         response.data.data_present ? self.setState({data: response.data.rows}) : self.setState({data: []})
       })
@@ -65,7 +68,7 @@ class AllProjects extends Component {
     if(filter_value == undefined){return};
     if(filter_value == "a"){  this.props.get_all_projects(this); return; }
     var self = this;
-    axios.get("http://localhost:3001/filter_all_projects?val="+ filter_value)
+    axios.get(config.host + ":3001/filter_all_projects?val="+ filter_value)
     .then(function (response) {
       if(response.data.data_present){
         self.setState({
@@ -78,6 +81,14 @@ class AllProjects extends Component {
       }
       return;
     })
+  }
+
+  handleSignOut(e){
+    localStorage.clear();
+    axios.get(config.host + ":3001/destroy_session", { withCredentials: true })
+    .then((response) => {
+    })
+    window.location.href = config.host + ":3000/signin";
   }
 
   render() {
@@ -105,6 +116,7 @@ class AllProjects extends Component {
         })
       }
     }
+    
     
     return (
       <div className= "container">
@@ -159,7 +171,7 @@ function mapDispatchToProps(dispatch){
   return{
     get_all_projects: (obj) => {
       var self = obj;
-      axios.get("http://localhost:3001/get_all_projects", { withCredentials: true })
+      axios.get(config.host + ":3001/get_all_projects", { withCredentials: true })
       .then(function (response) {
         if(response.data.rows != null){
           let user_detail = response.data.rows;

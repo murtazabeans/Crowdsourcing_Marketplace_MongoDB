@@ -3,6 +3,7 @@ import MyProject from './MyProject';
 import axios from 'axios';
 import Pagination from './Pagination'
 import ProjectSearchBar from './ProjectSearchBar'
+var config = require('../config');
 
 class MyProjects extends Component {
 
@@ -15,10 +16,10 @@ class MyProjects extends Component {
 
   componentDidMount(){
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
+        window.location.href = config.host + ":3000/signin";
       }
     })
   }
@@ -47,7 +48,7 @@ class MyProjects extends Component {
 
   loadProjectsFromServer(user_id){
     var self = this;
-    axios.get("http://localhost:3001/get_all_user_published_projects?u_id=" + user_id)
+    axios.get(config.host + ":3001/get_all_user_published_projects?u_id=" + user_id)
     .then(function (response) {
       if(response.data.rows != null){
         let user_detail = response.data.rows;
@@ -64,7 +65,7 @@ class MyProjects extends Component {
   handleSearchBar(e){
     var self = this;
     if(e.target.value != ""){
-      axios.get('http://localhost:3001/search_for_user_published_projects?val=' + e.target.value + '&u_id=' + localStorage.user_id, { withCredentials: true })
+      axios.get(config.host + ":3001/search_for_user_published_projects?val=" + e.target.value + "&u_id=" + localStorage.user_id, { withCredentials: true })
       .then((response) => {
         response.data.data_present ? self.setState({data: response.data.rows}) : self.setState({data: []})
       })

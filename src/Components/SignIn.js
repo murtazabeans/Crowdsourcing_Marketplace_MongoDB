@@ -10,6 +10,7 @@ import Background from '../img/bg-01.jpg';
 import SweetAlert from 'sweetalert-react';
 import swal from 'sweetalert2'
 import allreducers from '../reducers';
+var config = require('../config');
 
 class SignIn extends Component {
   constructor(props){
@@ -22,10 +23,10 @@ class SignIn extends Component {
 
   componentWillMount(){
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email !=  undefined){
-        window.location.href = "http://localhost:3000/projects";
+        window.location.href = config.host + ":3000/projects";
       }
     })
   }
@@ -128,12 +129,12 @@ function mapStateToProps(state){
 function mapDispatchToProps(dispatch){
   return{
     loginCredentials: (details) => {
-      axios.post('http://localhost:3001/signin', details, { withCredentials: true })
+      axios.post(config.host + ":3001/signin", details, { withCredentials: true })
       .then(response => {
         if(response.data.correctCredentials){
           localStorage.setItem("isLoggedIn", true);
           localStorage.setItem("user_id", response.data.rows.id)
-          window.location.href = "http://localhost:3000/projects"
+          window.location.href =config.host + ":3000/projects"
           dispatch({type: 'LoggedIn', payload: response.data.rows});
         }
         else{

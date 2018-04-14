@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import SweetAlert from 'sweetalert-react';
 import swal from 'sweetalert2'
+var config = require('../config');
 
 class WithdrawPayment extends Component {
 
@@ -22,7 +23,7 @@ class WithdrawPayment extends Component {
     if( user_id != null){
       var self = this;
       let formData = {amount: this.state.amount , user_id: user_id}
-      axios.post("http://localhost:3001/withraw_amount", formData)
+      axios.post(config.host + ":3001/withraw_amount", formData)
       .then(function (response) {
         if(!response.data.correctRequest){
           swal({

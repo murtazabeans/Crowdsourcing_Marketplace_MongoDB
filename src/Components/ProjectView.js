@@ -5,6 +5,7 @@ import SweetAlert from 'sweetalert-react';
 import swal from 'sweetalert2';
 import { confirmAlert } from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css'
+var config = require('../config');
 
 class ProjectView extends Component {
 
@@ -21,10 +22,10 @@ class ProjectView extends Component {
     let project_id = localStorage.getItem("project_id");
     this.loadProjectDetailsFromServer(project_id)
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
+        window.location.href = config.host + ":3000/signin";
       }
       else{
         let project_id = localStorage.getItem("project_id");
@@ -49,12 +50,12 @@ class ProjectView extends Component {
     e.preventDefault();
     var self = this;
     let form_values = {project_id: localStorage.project_id, user_id: localStorage.user_id}
-    axios.post("http://localhost:3001/get-bid-value-for-user", form_values)
+    axios.post(config.host + ":3001/get-bid-value-for-user", form_values)
     .then(function (response) {
         if(response.data.data_present){
           self.setState({
-            days: response.data.rows.number_of_days,
-            price: response.data.rows.price,
+            days: response.data.rows[0].number_of_days,
+            price: response.data.rows[0].price,
             btn_name: "Update Bid"
           })
         }
@@ -71,11 +72,11 @@ class ProjectView extends Component {
 
     var self = this;
     let form_values = {user_id: localStorage.user_id, project_id: localStorage.project_id, no_of_days: this.state.days, price: this.state.price}
-    axios.post("http://localhost:3001/submit_bid", form_values)
+    axios.post(config.host + ":3001/submit_bid", form_values)
     .then(function (response) {
       if(response.data.bidCreated){
 
-        axios.post("http://localhost:3001/get_bids", {project_id: localStorage.project_id})
+        axios.post(config.host + ":3001/get_bids", {project_id: localStorage.project_id})
         .then(function (response) {
           var price = 0;
           for(var i = 0; i < response.data.rows.length; i++){
@@ -118,7 +119,7 @@ class ProjectView extends Component {
 
   loadProjectDetailsFromServer(project_id){
     var self = this;
-    axios.get("http://localhost:3001/get_project_detail?p_id=" + project_id)
+    axios.get(config.host + ":3001/get_project_detail?p_id=" + project_id)
     .then(function (response) {
       if(response.data.rows != null){
         let user_detail = response.data.rows;
@@ -178,7 +179,7 @@ class ProjectView extends Component {
         }
         var self = this;
         if(this.state.file != ""){
-          axios.post("http://localhost:3001/upload-folder", formData, config)
+          axios.post(config.host + ":3001/upload-folder", formData, config)
           .then(function (response) {
             if(response.data.fileType != null){
               
@@ -219,7 +220,7 @@ class ProjectView extends Component {
             var a = ""
             self.setState({})
             let form_data = {employer_id: localStorage.user_id, freelancer_id: self.state.data.assigned_to, project_id: localStorage.project_id}
-            axios.post("http://localhost:3001/make_payment", form_data)
+            axios.post(config.host + ":3001/make_payment", form_data)
             .then(function (response) {
               if(response.data.project_completed){   
                 swal({

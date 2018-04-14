@@ -9,12 +9,12 @@ import { BrowserRouter as Router, Route } from 'react-router-dom'
 import {connect} from 'react-redux';
 import {bindActionCreators} from 'redux';
 import allreducers from '../reducers'
-
-
 import '../css/bootstrap.min.css';
 import '../css/font-awesome.min.css';
 import '../css/simple-line-icons.css';
-import '../css/landing-page.min.css'
+import '../css/landing-page.min.css';
+var config = require('../config');
+
 
 class Layout extends Component {
   constructor(props) {
@@ -23,7 +23,7 @@ class Layout extends Component {
   
   componentWillMount(){
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email !=  undefined){
         this.props.getUserName(localStorage.user_id)
@@ -54,7 +54,7 @@ function mapStateToProps(state){
 function mapDispatchToProps(dispatch){
   return{
     getUserName: (user_id) => {
-      axios.get('http://localhost:3001/get-user-name?id=' + user_id)
+      axios.get(config.host + ":3001/get-user-name?id=" + user_id)
       .then(response => {
         console.log(response.data);
         if(response.data.data_present){

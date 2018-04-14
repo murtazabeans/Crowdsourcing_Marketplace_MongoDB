@@ -3,6 +3,14 @@ body {
 	transition: background-color .5s;
 }
 
+a.link-style.nav-link.btn-info.home-page-link {
+	width: 10%;
+}
+div#detail {
+	margin-top: 20%;
+	margin-left: 42%;
+}
+
 #search_bar{
 	width: 55% !important;
 	margin-left: 30%

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+var config = require('../config');
 
 class ProjectDetail extends Component {
 
@@ -11,22 +12,22 @@ class ProjectDetail extends Component {
 
   handleProjectView(e){
     localStorage.setItem('project_id', e.target.dataset.id);
-    window.location.href = "http://localhost:3000/project-detail"
+    window.location.href = config.host + ":3000/project-detail"
   }
 
   handleProjectNameClick(e){
     localStorage.setItem('project_id', e.target.dataset.attr);
-    window.location.href = "http://localhost:3000/project-detail"
+    window.location.href = config.host + ":3000/project-detail"
   }
 
   handleBidsView(e){
     localStorage.setItem('project_id', e.target.dataset.id);
-    window.location.href = "http://localhost:3000/project-bids"
+    window.location.href = config.host + ":3000/project-bids"
   }
 
   handleEmployerNameClick(e){
     localStorage.setItem('profile_id', e.target.dataset.employerid);
-    window.location.href = "http://localhost:3000/profile"
+    window.location.href = config.host + ":3000/profile"
   }
 
   render() {

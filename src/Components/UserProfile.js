@@ -5,6 +5,7 @@ import SweetAlert from 'sweetalert-react';
 import ImageUpload from './ImageUpload'
 import swal from 'sweetalert2'
 import CreatableDemo from './CreatableDemo'
+var config = require('../config');
 
 class UserProfile extends Component {
   constructor(){
@@ -20,10 +21,10 @@ class UserProfile extends Component {
 
   componentDidMount(){
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
+        window.location.href = config.host + ":3000/signin";
       }
     })
   }
@@ -70,7 +71,7 @@ class UserProfile extends Component {
     let id = localStorage.user_id
     if( id != null){
       var self = this;
-      axios.get("http://localhost:3001/get_user?id=" + id)
+      axios.get(config.host + ":3001/get_user?id=" + id)
       .then(function (response) {
         if(response.data.rows != null){
           let user_detail = response.data.rows;
@@ -102,7 +103,7 @@ class UserProfile extends Component {
       , about_me: this.state.about_me, skills: this.state.user_skills.join(","), id: localStorage.user_id};
 
     var self = this;
-    axios.post('http://localhost:3001/update_profile', form_values)
+    axios.post(config.host + ":3001/update_profile", form_values)
       .then(function (response) {
           swal({
             type: 'success',

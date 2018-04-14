@@ -15,7 +15,7 @@ import allreducers from '../reducers';
 // import UserSession from '../reducers/user-session'
 import reducer from '../reducers/user-session';
 import { debug } from 'util';
-
+var config = require('../config');
 
 
 class SignUp extends Component {
@@ -32,10 +32,10 @@ class SignUp extends Component {
 
   componentDidMount(){
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email !=  undefined){
-        window.location.href = "http://localhost:3000/projects";
+        window.location.href = config.host + ":3000/projects";
       }
     })
   }
@@ -63,7 +63,7 @@ class SignUp extends Component {
     let emailErrorPresent = !this.validateEmailFormat(this.state.email) ? true : false;
     if(nameErrorPresent || passwordErrorPresent || emailErrorPresent){ return;}
     
-    axios.post('http://localhost:3001/check_email', form_values)
+    axios.post(config.host + ":3001/check_email", form_values)
     .then((response) => {
       var self = this;
       if(response.data.emailPresent){
@@ -173,9 +173,9 @@ function mapStateToProps(state){
 function mapDispatchToProps(dispatch){
   return{
     registerUser: (details) => {
-      axios.post('http://localhost:3001/signup', details, { withCredentials: true })
+      axios.post(config.host + ":3001/signup", details, { withCredentials: true })
       .then((response) => {
-        window.location.href = "http://localhost:3000/projects";
+        window.location.href = config.host + ":3000/projects";
         dispatch({type: 'LoggedIn', payload: response.data.rows});
         localStorage.setItem("isLoggedIn", true);
         localStorage.setItem("user_id", response.data.rows.id)

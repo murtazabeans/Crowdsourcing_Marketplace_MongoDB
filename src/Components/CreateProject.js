@@ -4,6 +4,7 @@ import axios from 'axios';
 import SweetAlert from 'sweetalert-react';
 import swal from 'sweetalert2'
 import CreatableDemo from './CreatableDemo'
+var config_header = require('../config');
 
 class CreateProject extends Component {
   constructor(){
@@ -19,10 +20,11 @@ class CreateProject extends Component {
 
   componentDidMount(){
     var self = this;
-    axios.get('http://localhost:3001/check_session', { withCredentials: true })
+    debugger
+    axios.get(config_header.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email ==  undefined){
-        window.location.href = "http://localhost:3000/signin";
+        window.location.href = config_header.host + ":3000/signin";
       }
     })
   }
@@ -86,8 +88,10 @@ class CreateProject extends Component {
     formData.append('user_id', localStorage.user_id);
     if( user_id != null){
       var self = this;
-      axios.post("http://localhost:3001/create_project", formData, config)
+      debugger
+      axios.post(config_header.host + ":3001/create_project", formData, config)
       .then(function (response) {
+        debugger
         console.log(response);
         self.setState({
           title: '', 
@@ -158,7 +162,6 @@ class CreateProject extends Component {
 
   handleFileInputChange(e){
     e.preventDefault();
-
     let reader = new FileReader();
     let file = e.target.files[0]
     reader.onloadend = () => {
@@ -214,14 +217,6 @@ class CreateProject extends Component {
                 </div>
                 <div id = "description-error" class= "error"></div>
                 
-                {/* <div className="wrap-input100 validate-input m-b-26 div-space form-div" data-validate="Skills are required">
-                  <span className="label-input100">Skills</span>
-                  <input className="input100" type="text" name="skills_required" placeholder="Enter Skills Required" value={ this.state.skills_required } 
-                  onChange={ this.handleSkillsChange } />
-                  <span className="focus-input100"></span>
-                </div>
-                <div id = "skills-error" class= "error"></div> */}
-
                 <CreatableDemo handleSkillsChange={this.handleSkillsChange}/>
                 <div id = "skills-error" class= "error"></div>
 

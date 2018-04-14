@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import SweetAlert from 'sweetalert-react';
-import swal from 'sweetalert2'
+import swal from 'sweetalert2';
+var config = require('../config');
 
 class ProjectBid extends Component {
 
@@ -13,7 +14,7 @@ class ProjectBid extends Component {
   handleHireButton(e){
     e.preventDefault();
     let form_values = { p_id: localStorage.project_id, free_lancer_id: e.target.id };
-    axios.post("http://localhost:3001/hire_user", form_values)
+    axios.post(config.host + ":3001/hire_user", form_values)
     .then(function (response) {
         swal({
           type: 'success',
@@ -25,7 +26,7 @@ class ProjectBid extends Component {
 
   handleFreelancerNameClick(e){
     localStorage.setItem('profile_id', e.target.dataset.freelancerid);
-    window.location.href = "http://localhost:3000/profile"
+    window.location.href = config.host + ":3000/profile"
   }
 
   render() {

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 import swal from 'sweetalert2'
+var config = require('../config');
 
 class FileUpload extends Component {
   constructor(){
@@ -34,7 +35,7 @@ class FileUpload extends Component {
     }
     var self = this;
     if(this.state.file != ""){
-      axios.post("http://localhost:3001/upload-Image", formData, config)
+      axios.post(config.host + ":3001/upload-Image", formData, config)
       .then(function (response) {
         if(response.data.fileType != null){
           let user_detail = response.data.rows;
