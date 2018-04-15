@@ -395,6 +395,7 @@ app.post('/upload-Image', function(req, response){
 });
 
 app.post('/upload-folder', function(req, response){
+  console.log("hello")
   let form = new multiparty.Form();
   form.parse(req, (err, fields, files) => {
     let { path: tempPath, originalFilename } = files.file[0];

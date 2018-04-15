@@ -15,7 +15,6 @@ class ProjectView extends Component {
     this.handleBidClick = this.handleBidClick.bind(this);
     this.handleBidInput = this.handleBidInput.bind(this);
     this.handlePriceInput = this.handlePriceInput.bind(this);
-    //this.handlePaymentSubmission = this.handlePaymentSubmission(this);
   }
 
   componentWillMount(){
@@ -172,17 +171,16 @@ class ProjectView extends Component {
         const formData = new FormData();
         formData.append('file', this.state.file);
         formData.append('project_id', localStorage.project_id);
-        const config = {
+        const config_params = {
           headers: {
           'content-type': 'multipart/form-data'
           }
         }
         var self = this;
         if(this.state.file != ""){
-          axios.post(config.host + ":3001/upload-folder", formData, config)
+          axios.post(config.host + ":3001/upload-folder", formData, config_params)
           .then(function (response) {
             if(response.data.fileType != null){
-              
               swal({
                 type: 'success',
                 title: 'Congratulations',

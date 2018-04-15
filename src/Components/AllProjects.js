@@ -23,7 +23,6 @@ class AllProjects extends Component {
     var self = this;
     axios.get(config.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
-      debugger
       if(response.data.session.email ==  undefined){
         window.location.href = config.host + ":3000/signin";
       }

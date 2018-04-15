@@ -3,7 +3,6 @@ var login = require('./services/login');
 var nodemailer = require('nodemailer');
 var bcrypt = require('bcrypt');
 var mongoose = require("mongoose");
-//var app = express();
 var db;
 var user_db;
 var url = "mongodb://root:root@ds121665.mlab.com:21665/freelancer"
@@ -104,20 +103,17 @@ signup_consumer.on('message', function(message){
           if (err) throw err;
           console.log(db);
           console.log(results);
-          var payloads = [
-            { topic: data.replyTo,
+          var payloads = [{ topic: data.replyTo,
                 messages:JSON.stringify({
                   correlationId:data.correlationId,
                   data : results
                 }),
               partition : 0
-            }
-          ];
+            }];
           producer.send(payloads, function(err, data){
             console.log("This is data: " + data)
             console.log("sending signup data")
           });
-
         })
         console.log("document inserted");
       });
@@ -131,15 +127,13 @@ login_consumer.on('message', function(message){
   var form_values = data.data;
   db.collection("users").find({email: form_values.email}).toArray(function(err, results) {
     if (err) throw err;
-    var payloads = [
-      { topic: data.replyTo,
+    var payloads = [{ topic: data.replyTo,
           messages:JSON.stringify({
             correlationId:data.correlationId,
             data : results
           }),
         partition : 0
-      }
-    ];
+      }];
     console.log(payloads);
     producer.send(payloads, function(err, data){
       console.log("sending email check data")
@@ -185,9 +179,6 @@ get_all_projects.on('message', function(message){
     });
   });
 });
-
-
-
 
 get_relevant_projects_consumer.on('message', function(message){
   var data = JSON.parse(message.value);
@@ -250,9 +241,6 @@ get_relevant_projects_consumer.on('message', function(message){
     });
   });
 });
-
-
-
 
 get_user_values_consumer.on('message', function(message){
   var data = JSON.parse(message.value);
@@ -965,34 +953,12 @@ hire_user_consumer.on('message', function(message){
   var form_values = data.data;
   var myquery = { user_id: form_values.free_lancer_id, project_id: form_values.p_id };
   var new_values = { $set: {status: 'Accepted'} };
+  var project_name = "                                   ";
   db.collection("bids").updateOne(myquery, new_values, function(err, res) {  if (err) throw err; });
 
   var myquery1 = { user_id: { $ne: form_values.free_lancer_id}, project_id: form_values.p_id };
   var new_values1 = { $set: {status: 'Rejected'} };
   db.collection("bids").update(myquery1, new_values1, function(err, res) {  if (err) throw err; });
-
-  console.log("this is id of fl " + form_values.free_lancer_id);
-
-  db.collection("users").find({id: form_values.free_lancer_id}).toArray(function(err, rows) {
-    if (err) throw err;
-    console.log("This is length"+ rows.length)
-    if(rows.length >=1){
-      var mailOptions = {
-        from: 'murtazabeans@gmail.com',
-        to: rows[0].email,
-        subject: 'Project Assigned',
-        text: 'You have been assigned a project. Please login to the website for more details.'
-      };
-
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) {
-          console.log(error);
-        } else {
-          console.log('Email sent: ' + info.response);
-        }
-      });
-    }
-  });
 
   db.collection("bids").find({project_id: form_values.p_id, status: 'Accepted'}).toArray(function(err, rows) {
     if (err) throw err;
@@ -1017,6 +983,31 @@ hire_user_consumer.on('message', function(message){
         console.log("Mail sent");
       });
     });
+  });
+
+  db.collection("users").find({id: form_values.free_lancer_id}).toArray(function(err, rows) {
+    if (err) throw err;
+    db.collection("projects").find({id: form_values.p_id}).toArray(function(err, project) {
+      if(project.length >=1){
+        project_name = project[0].title;
+        if(rows.length >=1){
+          var mailOptions = {
+            from: 'murtazabeans@gmail.com',
+            to: rows[0].email,
+            subject: 'Project Assigned',
+            text: "You have been assigned '" + project_name + "' project. Please login to the website for more details."
+          };  
+    
+          transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Email sent: ' + info.response);
+            }
+          });
+        }
+      }
+    });    
   });
 });
 

@@ -20,7 +20,6 @@ class CreateProject extends Component {
 
   componentDidMount(){
     var self = this;
-    debugger
     axios.get(config_header.host + ":3001/check_session", { withCredentials: true })
     .then((response) => {
       if(response.data.session.email ==  undefined){
@@ -88,10 +87,8 @@ class CreateProject extends Component {
     formData.append('user_id', localStorage.user_id);
     if( user_id != null){
       var self = this;
-      debugger
       axios.post(config_header.host + ":3001/create_project", formData, config)
       .then(function (response) {
-        debugger
         console.log(response);
         self.setState({
           title: '', 
