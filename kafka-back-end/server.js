@@ -61,7 +61,9 @@ var past_payments_consumer = connection.getConsumer('past_payments_topic');
 var search_for_user_bid_projects_consumer = connection.getConsumer('search_for_user_bid_projects_topic');
 var search_for_user_published_projects_consumer = connection.getConsumer('search_for_user_published_projects_topic');
 var filter_all_projects_consumer =  connection.getConsumer('filter_all_projects_topic');
+var filter_my_bid_projects_consumer = connection.getConsumer('filter_my_bid_projects_topic');
 var get_relevant_projects_consumer = connection.getConsumer('get_relevant_projects_topic');
+var filter_my_project_consumer = connection.getConsumer('filter_my_project_topic');
 
 email_check_consumer.on('message', function(message){
   console.log(JSON.stringify(message.value));
@@ -471,6 +473,50 @@ get_user_bid_projects_consumer.on('message', function(message){
   });
 });
 
+filter_my_bid_projects_consumer.on('message', function(message){
+  var data = JSON.parse(message.value);
+  var form_values = data.data;
+  db.collection('projects').aggregate([
+      {
+        $lookup:
+        {
+          from: 'bids',
+          localField: 'id',
+          foreignField: 'project_id',
+          as: 'bids'
+        }
+      },
+      {
+        $lookup:
+        {
+          from: 'users',
+          localField: 'user_id',
+          foreignField: 'id',
+          as: 'employer'
+        }
+      },
+      { $unwind:"$employer" },
+      
+      { "$match": { $and: [{ "bids.user_id": form_values.u_id }, {"status": form_values.val}] }},
+    ]).toArray(function(err, results) {
+    if (err) throw err;
+    //db.close();
+
+    var payloads = [
+      { topic: data.replyTo,
+          messages:JSON.stringify({
+            correlationId:data.correlationId,
+            data : results
+          }),
+        partition : 0
+      }
+    ];
+    producer.send(payloads, function(err, data){
+      console.log("Get all bids for project");
+    });
+  });
+});
+
 search_for_user_bid_projects_consumer.on('message', function(message){
   var data = JSON.parse(message.value);
   var form_values = data.data;
@@ -583,6 +629,47 @@ get_user_published_projects_consumer.on('message', function(message){
         }
       },
       { "$match": { "user_id": form_values.u_id } },
+    ]).toArray(function(err, results) {
+    if (err) throw err;
+    //db.close();
+    var payloads = [
+      { topic: data.replyTo,
+          messages:JSON.stringify({
+            correlationId:data.correlationId,
+            data : results
+          }),
+        partition : 0
+      }
+    ];
+    producer.send(payloads, function(err, data){
+      console.log("Get all bids for project");
+    });
+  });
+});
+
+filter_my_project_consumer.on('message', function(message){
+  var data = JSON.parse(message.value);
+  var form_values = data.data;
+  db.collection('projects').aggregate([
+      {
+        $lookup:
+        {
+          from: 'users',
+          localField: 'assigned_to',
+          foreignField: 'id',
+          as: 'freelancer'
+        }
+      },
+      {
+        $lookup:
+        {
+          from: 'bids',
+          localField: 'id',
+          foreignField: 'project_id',
+          as: 'bids'
+        }
+      },
+      { "$match": { $and: [{ "user_id": form_values.u_id }, {"status": form_values.val}] }},
     ]).toArray(function(err, results) {
     if (err) throw err;
     //db.close();

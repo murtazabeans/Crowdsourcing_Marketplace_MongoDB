@@ -75,6 +75,26 @@ class AllUserBidProjects extends Component {
     }
   }
 
+  handleDropdownChange(e){
+    var filter_value = e.target.options[e.target.selectedIndex].dataset.value;
+    if(filter_value == undefined){return};
+    if(filter_value == "a"){  this.loadProjectsFromServer(localStorage.user_id); return; }
+    var self = this;
+    axios.get(config.host + ":3001/filter_my_bid_projects?val="+ filter_value + "&u_id=" + localStorage.user_id)
+    .then(function (response) {
+      if(response.data.data_present){
+        self.setState({
+          data: response.data.rows
+        })
+        return;
+      }
+      else{
+        self.setState({data: []});
+      }
+      return;
+    })
+  }
+
   render() {
     let projectList, pagination_list = null;
     if(this.state.data != null){
@@ -116,7 +136,21 @@ class AllUserBidProjects extends Component {
     return (
       <div class = "container">
       <h1 id = "table_header" class="display-4">Your Bided Projects</h1>
-        <ProjectSearchBar handleSearchBar={this.handleSearchBar}/>
+      <div class="row">
+          <div class="col-lg-8">
+          <ProjectSearchBar handleSearchBar={this.handleSearchBar}/>
+          </div>
+          <div class="col-lg-4">
+            <div class="form-group dropdown">
+              <select class="form-control" id="sel1" onChange = {this.handleDropdownChange.bind(this)}>
+                <option data-value="a">All Projects</option>
+                <option data-value="o">Open Projects</option>
+                <option data-value="og">On Going Projects</option>
+                <option data-value="c" >Closed Projects</option>
+              </select>
+            </div>
+          </div>
+        </div>
         <table class="table details-table table-striped table-bordered">
           <thead class = "table-header">
             <tr>

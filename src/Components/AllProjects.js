@@ -136,7 +136,6 @@ class AllProjects extends Component {
           </div>
         </div>
         
-        
         <table className="table details-table table-striped table-bordered">
           <thead className = "table-header">
             <tr>

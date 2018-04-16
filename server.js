@@ -439,6 +439,22 @@ app.get('/filter_all_projects', function(request, response){
   })
 });
 
+app.get('/filter_my_bid_projects', function(request, response){
+  var data = request.query;
+  kafka.make_request('filter_my_bid_projects_topic', data, function(err, rows){
+    if (err) throw err;
+    rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
+  })
+});
+
+app.get('/filter_user_published_projects', function(request, response){
+  var data = request.query;
+  kafka.make_request('filter_my_project_topic', data, function(err, rows){
+    if (err) throw err;
+    rows.length >= 1 ? response.json({data_present: true, rows: rows}) :  response.json({data_present: false});
+  })
+});
+
 app.listen(port, function() {
  console.log(`api running on port ${port}`);
 });
